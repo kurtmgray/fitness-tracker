@@ -1,5 +1,4 @@
 import React from 'react';
-import { Dumbbell } from 'lucide-react';
 import Navigation from './Navigation';
 
 interface LayoutProps {
@@ -14,15 +13,21 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <div className="hidden md:block w-64 p-4">
           <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6 h-full">
             <div className="mb-8">
-              <div className="flex items-center mb-2">
-                <Dumbbell className="w-6 h-6 text-blue-600 mr-2" />
-                <h1 className="text-xl font-semibold text-slate-800">
-                  Fitness Tracker
-                </h1>
+              <div className="flex flex-col items-center mb-4">
+                <img 
+                  src="/gerald-athletic-club-logo.png" 
+                  alt="Gerald Athletic Club" 
+                  className="w-16 h-16 mb-3 rounded-full border-2 border-slate-200"
+                />
+                <div className="text-center">
+                  <h1 className="text-lg font-semibold text-slate-800">
+                    Gerald Athletic Club
+                  </h1>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Fitness Tracker
+                  </p>
+                </div>
               </div>
-              <p className="text-sm text-slate-500">
-                Your complete fitness companion
-              </p>
             </div>
             <Navigation />
           </div>

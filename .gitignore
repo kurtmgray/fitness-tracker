@@ -7,3 +7,9 @@ count.txt
 .env
 .nitro
 .tanstack
+
+# Database design files (keep local for now)
+database-setup.md
+database-scripts.sql
+trpc-router-structure.ts
+backend-setup.json

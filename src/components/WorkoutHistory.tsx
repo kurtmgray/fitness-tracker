@@ -104,14 +104,14 @@ const WorkoutHistory: React.FC = () => {
           return (
             <div
               key={weekKey}
-              className={`bg-white rounded-xl shadow-lg border-2 transition-all ${
+              className={`bg-white shadow-lg border-2 rounded-xl transition-all ${
                 isCurrentWeek
                   ? 'border-blue-500'
                   : 'border-gray-200 hover:border-gray-300'
               }`}
             >
               <div
-                className="p-4 sm:p-6 cursor-pointer hover:bg-gray-50 transition-colors"
+                className="p-4 sm:p-6 cursor-pointer hover:bg-gray-50 transition-colors rounded-xl"
                 onClick={() => toggleWeek(weekKey)}
               >
                 <div className="flex justify-between items-center">
@@ -141,7 +141,7 @@ const WorkoutHistory: React.FC = () => {
                     <div className="text-right hidden sm:block">
                       <div className="text-sm text-gray-500">Consistency</div>
                       <div className="text-lg font-bold text-gray-800">
-                        {stats.totalWorkouts}/7 days
+                        {stats.totalWorkouts}/3 days
                       </div>
                     </div>
                     <svg
@@ -349,7 +349,7 @@ const WorkoutHistory: React.FC = () => {
             <div className="text-2xl font-bold text-orange-600">
               {Math.round(
                 (mockData.reduce((sum, week) => sum + week.workouts.length, 0) /
-                  (8 * 7)) *
+                  (8 * 3)) *
                   100
               )}
               %
