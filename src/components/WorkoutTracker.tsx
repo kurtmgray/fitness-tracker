@@ -1,44 +1,6 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Dumbbell, Play, ArrowLeft, CheckCircle, Trophy } from 'lucide-react';
-
-type WorkoutDay = 'day1' | 'day2' | 'day3';
-
-interface ExerciseTemplate {
-  name: string;
-  sets: number;
-  reps: string;
-  weightType: string;
-  hasBosoBallOption?: boolean;
-  isTimeBased?: boolean;
-  isFailure?: boolean;
-  notes?: string;
-}
-
-interface SetEntry {
-  weight: number | string;
-  reps: number;
-  completed: boolean;
-  rpe?: number;
-}
-
-interface ExerciseEntry {
-  exerciseName: string;
-  sets: SetEntry[];
-  useBosoBall?: boolean;
-  bandType?: string;
-  notes?: string;
-}
-
-interface WorkoutSession {
-  id: string;
-  date: Date;
-  day: WorkoutDay;
-  exercises: ExerciseEntry[];
-  duration?: number;
-  notes?: string;
-}
-
-type WorkoutPhase = 'selection' | 'setup' | 'tracking' | 'complete';
+import { generateMockData } from '../utils/workoutMocks';
 
 const WorkoutTracker: React.FC = () => {
   const [currentPhase, setCurrentPhase] = useState<WorkoutPhase>('selection');
@@ -46,7 +8,10 @@ const WorkoutTracker: React.FC = () => {
   const [currentSession, setCurrentSession] = useState<WorkoutSession | null>(
     null
   );
-  const [workoutHistory, setWorkoutHistory] = useState<WorkoutSession[]>([]);
+  const mockData = useMemo(() => generateMockData(), []);
+  const [workoutHistory, setWorkoutHistory] = useState<WorkoutSession[]>(
+    mockData.flatMap((week) => week.workouts)
+  );
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0);
   const [currentSetIndex, setCurrentSetIndex] = useState(0);
   const [exerciseSetProgress, setExerciseSetProgress] = useState<
@@ -169,6 +134,43 @@ const WorkoutTracker: React.FC = () => {
     );
   };
 
+  const suggestNextWeight = (
+    lastWeight: number,
+    lastRpe: number,
+    weightType: string
+  ): number => {
+    let factor: number;
+
+    if (lastRpe <= 6) {
+      factor = 1.075;
+    } else if (lastRpe <= 7) {
+      factor = 1.05;
+    } else if (lastRpe <= 8.5) {
+      factor = 1.0;
+    } else if (lastRpe <= 9) {
+      factor = 0.975;
+    } else {
+      factor = 0.925;
+    }
+
+    const suggested = lastWeight * factor;
+    const maxIncrease = Math.min(lastWeight * 1.1, lastWeight + 10);
+    const minDecrease = Math.max(lastWeight * 0.9, lastWeight - 10);
+
+    let adjusted =
+      suggested > lastWeight
+        ? Math.min(suggested, maxIncrease)
+        : Math.max(suggested, minDecrease);
+
+    if (weightType === 'barbell') {
+      return Math.round(adjusted / 5) * 5;
+    } else if (weightType === 'dumbbell' || weightType === 'kettlebell') {
+      return Math.round(adjusted / 2.5) * 2.5;
+    } else {
+      return lastWeight;
+    }
+  };
+
   const initializeSession = (day: WorkoutDay): void => {
     const template = workoutTemplates[day];
     const lastWorkout = getLastWorkout(day);
@@ -177,13 +179,31 @@ const WorkoutTracker: React.FC = () => {
       const lastExercise = lastWorkout?.exercises.find(
         (ex) => ex.exerciseName === exercise.name
       );
+      const suggestedWeight = (() => {
+        if (!lastExercise) return 0;
+
+        const completedSets = lastExercise.sets.filter(
+          (s) => s.completed && typeof s.weight === 'number'
+        );
+        if (completedSets.length === 0)
+          return lastExercise.sets[0]?.weight ?? 0;
+
+        const avgRpe =
+          completedSets.reduce((sum, s) => sum + (s.rpe ?? 8), 0) /
+          completedSets.length;
+        return suggestNextWeight(
+          Number(completedSets[0].weight),
+          avgRpe,
+          exercise.weightType
+        );
+      })();
 
       return {
         exerciseName: exercise.name,
         sets: Array(exercise.sets)
           .fill(null)
           .map(() => ({
-            weight: lastExercise?.sets[0]?.weight || 0,
+            weight: suggestedWeight,
             reps: parseInt(exercise.reps) || 0,
             completed: false,
           })),
@@ -276,8 +296,15 @@ const WorkoutTracker: React.FC = () => {
     exercise: ExerciseTemplate;
     currentExercise: ExerciseEntry;
     lastExercise?: ExerciseEntry;
+    suggestion?: Suggestion | null;
     onUpdateExercise: (updates: Partial<ExerciseEntry>) => void;
-  }> = ({ exercise, currentExercise, lastExercise, onUpdateExercise }) => {
+  }> = ({
+    exercise,
+    currentExercise,
+    lastExercise,
+    suggestion,
+    onUpdateExercise,
+  }) => {
     const [isExpanded, setIsExpanded] = useState(false);
 
     return (
@@ -309,6 +336,15 @@ const WorkoutTracker: React.FC = () => {
               <p className="text-sm text-gray-600">
                 {exercise.sets} sets × {exercise.reps} reps
               </p>
+
+              {suggestion && (
+                <p className="text-sm text-muted-foreground mt-1">
+                  💡 Suggested: {suggestion.suggestedWeight} lbs (based on{' '}
+                  {suggestion.lastWeight} lbs @ RPE{' '}
+                  {suggestion.avgRpe.toFixed(1)})
+                </p>
+              )}
+
               {currentExercise.useBosoBall && (
                 <span className="inline-block bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs font-medium mt-1">
                   Using Bosu Ball
@@ -440,7 +476,7 @@ const WorkoutTracker: React.FC = () => {
             <div
               key={day}
               onClick={() => selectDay(day)}
-              className="bg-white border-2 border-slate-200 hover:border-blue-500 rounded-xl p-6 cursor-pointer transition-all duration-300 hover:shadow-medium group"
+              className="bg-white border-2 border-slate-200 hover:border-blue-500 rounded-xl p-6 cursor-pointer transition-all duration-300 hover:shadow-medium group flex flex-col h-full"
             >
               <div className="flex justify-between items-start mb-4">
                 <h3 className="text-xl font-semibold text-slate-800 group-hover:text-blue-600">
@@ -457,23 +493,25 @@ const WorkoutTracker: React.FC = () => {
                 )}
               </div>
 
-              <div className="space-y-2 mb-4">
-                {template.slice(0, 4).map((exercise, idx) => (
+              <div className="space-y-2 mb-4 flex-1">
+                {template.slice(0, 6).map((exercise, idx) => (
                   <div key={idx} className="text-sm text-gray-600">
                     • {exercise.name} ({exercise.sets}x{exercise.reps})
                   </div>
                 ))}
-                {template.length > 4 && (
+                {template.length > 6 && (
                   <div className="text-sm text-gray-500">
                     + {template.length - 4} more exercises
                   </div>
                 )}
               </div>
 
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-medium text-blue-600">
-                  {template.length} exercises
-                </span>
+              <div className="flex justify-center items-center mt-auto">
+                {template.length > 6 && (
+                  <span className="text-sm font-medium text-blue-600">
+                    {template.length} exercises
+                  </span>
+                )}
                 <button className="bg-blue-500 text-white px-4 py-2 rounded-lg font-medium group-hover:bg-blue-600 transition-colors">
                   Start Workout
                 </button>
@@ -529,12 +567,37 @@ const WorkoutTracker: React.FC = () => {
               );
               const currentExercise = currentSession.exercises[idx];
 
+              const suggestion = (() => {
+                if (!lastExercise) return null;
+
+                const completedSets = lastExercise.sets.filter(
+                  (s) => s.completed
+                );
+                const lastWeight = Number(
+                  completedSets[0]?.weight ?? lastExercise.sets[0]?.weight ?? 0
+                );
+                const avgRpe =
+                  completedSets.length > 0
+                    ? completedSets.reduce((sum, s) => sum + (s.rpe ?? 8), 0) /
+                      completedSets.length
+                    : undefined;
+                const suggestedWeight =
+                  avgRpe !== undefined
+                    ? suggestNextWeight(lastWeight, avgRpe, exercise.weightType)
+                    : lastWeight;
+
+                return avgRpe !== undefined
+                  ? { suggestedWeight, lastWeight, avgRpe }
+                  : null;
+              })();
+
               return (
                 <ExerciseSetupCard
                   key={idx}
                   exercise={exercise}
                   currentExercise={currentExercise}
                   lastExercise={lastExercise}
+                  suggestion={suggestion}
                   onUpdateExercise={(updates) => {
                     const updatedSession = { ...currentSession };
                     Object.assign(updatedSession.exercises[idx], updates);
