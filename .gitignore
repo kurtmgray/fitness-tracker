@@ -13,3 +13,4 @@ database-setup.md
 database-scripts.sql
 trpc-router-structure.ts
 backend-setup.json
+backend-setup-guide.md

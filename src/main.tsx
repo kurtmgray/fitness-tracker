@@ -13,9 +13,9 @@ import './styles.css';
 
 import Layout from './components/layout/Layout';
 import Dashboard from './components/Dashboard';
-import WorkoutTracker from './components/WorkoutTracker';
-import StrengthAssessment from './components/StrengthAssessment';
-import WorkoutHistory from './components/WorkoutHistory';
+import WorkoutTracker from './components/workout-tracker/WorkoutTracker';
+import StrengthAssessment from './components/strength/StrengthAssessment';
+import WorkoutHistory from './components/workout-history/WorkoutHistory';
 
 const rootRoute = createRootRoute({
   component: () => (
