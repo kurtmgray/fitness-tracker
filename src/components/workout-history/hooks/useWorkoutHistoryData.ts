@@ -32,6 +32,20 @@ export const useWorkoutHistoryData = () => {
     setExpandedWorkouts(newExpanded);
   };
 
+  const parseWeight = (weight: number | string): number => {
+    if (typeof weight === 'number') return weight;
+    if (typeof weight === 'string') {
+      // Handle bodyweight exercises
+      if (weight.toLowerCase().includes('bw') || weight.toLowerCase().includes('bodyweight')) {
+        return 185; // Estimate bodyweight for volume calculation
+      }
+      // Extract numeric value from strings like "44# KB", "Red Band", etc.
+      const numericMatch = weight.match(/(\d+(?:\.\d+)?)/);
+      return numericMatch ? parseFloat(numericMatch[1]) : 0;
+    }
+    return 0;
+  };
+
   const getWeekStats = (workouts: WorkoutSession[]) => {
     const totalWorkouts = workouts.length;
     const totalVolume = workouts.reduce((sum, workout) => {
@@ -41,7 +55,8 @@ export const useWorkoutHistoryData = () => {
           return (
             exerciseSum +
             exercise.sets.reduce((setSum, set) => {
-              return setSum + Number(set.weight) * set.reps;
+              const weight = parseWeight(set.weight);
+              return setSum + weight * set.reps;
             }, 0)
           );
         }, 0)
@@ -59,7 +74,8 @@ export const useWorkoutHistoryData = () => {
       return (
         sum +
         exercise.sets.reduce((setSum, set) => {
-          return setSum + Number(set.weight) * set.reps;
+          const weight = parseWeight(set.weight);
+          return setSum + weight * set.reps;
         }, 0)
       );
     }, 0);

@@ -30,7 +30,7 @@ const StrengthAnalysisPanel: React.FC<StrengthAnalysisPanelProps> = ({
 
   return (
     <div className="mt-6 sm:mt-8 space-y-4 sm:space-y-6">
-      <div className="bg-gradient-to-r from-blue-500 to-slate-600 text-white rounded-xl p-4 sm:p-6">
+      <div className="bg-gradient-to-r from-[#8B9A5B] to-[#2C2C2C] text-white rounded-xl p-4 sm:p-6">
         <h3 className="text-xl sm:text-2xl font-semibold mb-4">
           <Bot className="w-6 h-6 mr-2 inline" />
           AI Analysis & Insights
@@ -85,7 +85,7 @@ const StrengthAnalysisPanel: React.FC<StrengthAnalysisPanelProps> = ({
         </div>
       </div>
 
-      <div className="bg-gradient-to-r from-blue-500 to-slate-600 text-white rounded-xl p-4 sm:p-6">
+      <div className="bg-gradient-to-r from-[#8B9A5B] to-[#2C2C2C] text-white rounded-xl p-4 sm:p-6">
         <h3 className="text-xl sm:text-2xl font-semibold mb-4">
           <BarChart3 className="w-6 h-6 mr-2 inline" />
           Quick Stats

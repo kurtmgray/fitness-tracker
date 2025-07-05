@@ -18,13 +18,13 @@ const WorkoutHistory: React.FC = () => {
   } = useWorkoutHistoryData();
 
   return (
-    <div className="bg-white/95 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-soft border border-white/20 p-4 sm:p-8">
+    <div className="bg-FAF7F2/95 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-soft border border-E8D7C3/20 p-4 sm:p-8">
       <div className="text-center mb-6 sm:mb-8">
-        <h1 className="text-2xl sm:text-4xl font-semibold text-slate-800 mb-2 sm:mb-4">
-          <TrendingUp className="w-8 h-8 sm:w-12 sm:h-12 text-blue-600 mr-3 inline" />
+        <h1 className="text-2xl sm:text-4xl font-semibold text-2C2C2C mb-2 sm:mb-4">
+          <TrendingUp className="w-8 h-8 sm:w-12 sm:h-12 text-8B9A5B mr-3 inline" />
           Workout History
         </h1>
-        <p className="text-base sm:text-lg text-slate-600">
+        <p className="text-base sm:text-lg text-2C2C2C/70">
           Track your progress and review past training sessions
         </p>
       </div>

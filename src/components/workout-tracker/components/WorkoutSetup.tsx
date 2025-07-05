@@ -37,7 +37,7 @@ const WorkoutSetup: React.FC<WorkoutSetupProps> = ({
       <div className="flex items-center mb-4">
         <button
           onClick={onGoBack}
-          className="flex items-center space-x-2 text-slate-600 hover:text-slate-800 transition-colors"
+          className="flex items-center space-x-2 text-[#2C2C2C]/70 hover:text-[#2C2C2C] transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
           <span>Back to Day Selection</span>
@@ -45,21 +45,21 @@ const WorkoutSetup: React.FC<WorkoutSetupProps> = ({
       </div>
 
       <div className="text-center mb-8">
-        <h2 className="text-3xl font-semibold text-slate-800 mb-2">
+        <h2 className="text-3xl font-semibold text-[#2C2C2C] mb-2">
           Day {selectedDay.slice(-1)}: {dayTitles[selectedDay]}
         </h2>
-        <p className="text-lg text-slate-600">
+        <p className="text-lg text-[#2C2C2C]/80">
           Review and adjust your workout plan
         </p>
         {lastWorkout && (
-          <p className="text-sm text-gray-500 mt-2">
+          <p className="text-sm text-[#2C2C2C]/60 mt-2">
             Last performed: {new Date(lastWorkout.date).toLocaleDateString()}
           </p>
         )}
       </div>
 
-      <div className="bg-gradient-to-r from-blue-50 to-slate-50 rounded-2xl p-6 mb-6 border border-blue-100">
-        <h3 className="text-xl font-semibold text-slate-800 mb-4">
+      <div className="bg-gradient-to-r from-[#FAF7F2] to-[#F0E6D6] rounded-2xl p-6 mb-6 border border-[#E8D7C3]">
+        <h3 className="text-xl font-semibold text-[#2C2C2C] mb-4">
           Today's Workout
         </h3>
 
@@ -115,7 +115,7 @@ const WorkoutSetup: React.FC<WorkoutSetupProps> = ({
       <div className="flex justify-center text-center">
         <button
           onClick={onStartWorkout}
-          className="flex gap-2 bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white font-semibold py-4 px-8 rounded-xl shadow-medium hover:shadow-strong transition-all duration-300 transform hover:scale-105"
+          className="flex gap-2 bg-gradient-to-r from-[#8B9A5B] to-[#6B7A4B] hover:from-[#6B7A4B] hover:to-[#5A6940] text-white font-semibold py-4 px-8 rounded-xl shadow-medium hover:shadow-strong transition-all duration-300 transform hover:scale-105"
         >
           <Play className="w-5 h-5 mr-2" />
           Start Workout

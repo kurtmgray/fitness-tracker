@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 
-export type TimerMode = 'stopwatch' | 'countdown';
+export type TimerMode = 'stopwatch' | 'timer';
 
 export interface TimerState {
   time: number; // seconds
@@ -12,13 +12,14 @@ export interface TimerState {
 
 export const useTimer = () => {
   const [timerState, setTimerState] = useState<TimerState>({
-    time: 0,
+    time: 120, // 2 minutes default
     isRunning: false,
-    mode: 'stopwatch',
+    mode: 'timer',
+    targetTime: 120,
     laps: [],
   });
 
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (timerState.isRunning) {
@@ -27,7 +28,7 @@ export const useTimer = () => {
           if (prev.mode === 'stopwatch') {
             return { ...prev, time: prev.time + 1 };
           } else {
-            // Countdown mode
+            // Timer mode
             const newTime = prev.time - 1;
             if (newTime <= 0) {
               // Timer finished
@@ -62,7 +63,7 @@ export const useTimer = () => {
   const reset = () => {
     setTimerState(prev => ({
       ...prev,
-      time: prev.mode === 'countdown' ? prev.targetTime || 0 : 0,
+      time: prev.mode === 'timer' ? prev.targetTime || 0 : 0,
       isRunning: false,
       laps: [],
     }));
@@ -82,7 +83,7 @@ export const useTimer = () => {
       ...prev,
       mode,
       targetTime,
-      time: mode === 'countdown' ? targetTime || 0 : 0,
+      time: mode === 'timer' ? targetTime || 0 : 0,
       isRunning: false,
       laps: [],
     }));

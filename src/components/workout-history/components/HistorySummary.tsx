@@ -31,28 +31,28 @@ const HistorySummary: React.FC<HistorySummaryProps> = ({
   const consistencyPercentage = Math.round((totalWorkouts / (8 * 3)) * 100);
 
   return (
-    <div className="mt-8 bg-gradient-to-r from-blue-50 to-slate-50 rounded-2xl p-6 border border-blue-100">
-      <h3 className="text-xl font-semibold text-slate-800 mb-4">
+    <div className="mt-8 bg-gradient-to-r from-[#F0E6D6] to-[#E8D7C3] rounded-2xl p-6 border border-[#E8D7C3]">
+      <h3 className="text-xl font-semibold text-[#2C2C2C] mb-4">
         8-Week Summary
       </h3>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="text-center">
-          <div className="text-2xl font-bold text-blue-600">{totalWorkouts}</div>
-          <div className="text-sm text-gray-600">Total Workouts</div>
+          <div className="text-2xl font-bold text-[#8B9A5B]">{totalWorkouts}</div>
+          <div className="text-sm text-[#2C2C2C]/70">Total Workouts</div>
         </div>
         <div className="text-center">
-          <div className="text-2xl font-bold text-green-600">{totalVolumeK}k</div>
-          <div className="text-sm text-gray-600">Total Volume (lbs)</div>
+          <div className="text-2xl font-bold text-[#8B9A5B]">{totalVolumeK}k</div>
+          <div className="text-sm text-[#2C2C2C]/70">Total Volume (lbs)</div>
         </div>
         <div className="text-center">
-          <div className="text-2xl font-bold text-purple-600">{avgDuration}</div>
-          <div className="text-sm text-gray-600">Avg Duration (min)</div>
+          <div className="text-2xl font-bold text-[#8B9A5B]">{avgDuration}</div>
+          <div className="text-sm text-[#2C2C2C]/70">Avg Duration (min)</div>
         </div>
         <div className="text-center">
-          <div className="text-2xl font-bold text-orange-600">
+          <div className="text-2xl font-bold text-[#8B9A5B]">
             {consistencyPercentage}%
           </div>
-          <div className="text-sm text-gray-600">Consistency</div>
+          <div className="text-sm text-[#2C2C2C]/70">Consistency</div>
         </div>
       </div>
     </div>

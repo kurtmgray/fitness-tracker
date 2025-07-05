@@ -36,7 +36,7 @@ const WorkoutTracking: React.FC<WorkoutTrackingProps> = ({
       <div className="flex items-center mb-4">
         <button
           onClick={onGoBack}
-          className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition-colors"
+          className="flex items-center space-x-2 text-[#2C2C2C]/70 hover:text-[#2C2C2C] transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
           <span>Back to Setup</span>
@@ -44,36 +44,36 @@ const WorkoutTracking: React.FC<WorkoutTrackingProps> = ({
       </div>
 
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">
+        <h2 className="text-2xl font-bold text-[#2C2C2C] mb-2">
           Exercise {currentExerciseIndex + 1} of {currentSession.exercises.length}
         </h2>
-        <h3 className="text-3xl font-bold text-blue-600 mb-2">
+        <h3 className="text-3xl font-bold text-[#8B9A5B] mb-2">
           {currentExercise.exerciseName}
         </h3>
         {isCurrentExerciseComplete ? (
           <div className="space-y-2">
-            <p className="text-lg text-green-600 font-medium">
+            <p className="text-lg text-[#8B9A5B] font-medium">
               <CheckCircle className="w-5 h-5 mr-1 inline" />
               All sets complete for this exercise!
             </p>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-[#2C2C2C]/70">
               Move to the next exercise or review other exercises
             </p>
           </div>
         ) : (
-          <p className="text-lg text-gray-600">
+          <p className="text-lg text-[#2C2C2C]/80">
             Set {currentSetForExercise + 1} of {currentExercise.sets.length}
           </p>
         )}
         {currentExercise.useBosoBall && (
-          <span className="inline-block bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-medium mt-2">
+          <span className="inline-block bg-[#8B9A5B]/20 text-[#6B7A4B] px-3 py-1 rounded-full text-sm font-medium mt-2">
             Using Bosu Ball
           </span>
         )}
       </div>
 
-      <div className="bg-white rounded-xl p-4 border border-gray-200 mb-6">
-        <h4 className="font-medium text-gray-800 mb-3">Workout Progress</h4>
+      <div className="bg-white rounded-xl p-4 border border-[#E8D7C3] mb-6">
+        <h4 className="font-medium text-[#2C2C2C] mb-3">Workout Progress</h4>
         <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
           {currentSession.exercises.map((exercise, idx) => {
             const setsCompleted = exerciseSetProgress[idx] || 0;
@@ -86,12 +86,12 @@ const WorkoutTracking: React.FC<WorkoutTrackingProps> = ({
                 onClick={() => onSetCurrentExerciseIndex(idx)}
                 className={`p-2 rounded-lg text-xs text-center transition-all ${
                   isCurrentEx
-                    ? 'bg-blue-500 text-white border-2 border-blue-600'
+                    ? 'bg-[#8B9A5B] text-white border-2 border-[#6B7A4B]'
                     : setsCompleted >= totalSets
-                    ? 'bg-green-100 text-green-800 border border-green-300'
+                    ? 'bg-[#8B9A5B]/20 text-[#6B7A4B] border border-[#8B9A5B]/30'
                     : setsCompleted > 0
-                    ? 'bg-yellow-100 text-yellow-800 border border-yellow-300'
-                    : 'bg-gray-100 text-gray-600 border border-gray-300'
+                    ? 'bg-[#A4B574]/30 text-[#6B7A4B] border border-[#8B9A5B]/20'
+                    : 'bg-[#F0E6D6] text-[#2C2C2C]/60 border border-[#E8D7C3]'
                 }`}
               >
                 <div className="font-medium truncate">
@@ -107,11 +107,11 @@ const WorkoutTracking: React.FC<WorkoutTrackingProps> = ({
       </div>
 
       {!isCurrentExerciseComplete ? (
-        <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-6">
+        <div className="bg-gradient-to-r from-[#FAF7F2] to-[#F0E6D6] rounded-2xl p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-[#2C2C2C] mb-2">
                   Weight (lbs)
                 </label>
                 <input
@@ -122,7 +122,7 @@ const WorkoutTracking: React.FC<WorkoutTrackingProps> = ({
                     updatedSession.exercises[currentExerciseIndex].sets[currentSetForExercise].weight = Number(e.target.value);
                     onUpdateSession(updatedSession);
                   }}
-                  className="w-full px-4 py-3 text-xl text-center border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 text-xl text-center border border-[#E8D7C3] rounded-lg focus:ring-2 focus:ring-[#8B9A5B] focus:border-transparent"
                   min="0"
                   step="2.5"
                 />
@@ -133,7 +133,7 @@ const WorkoutTracking: React.FC<WorkoutTrackingProps> = ({
                       updatedSession.exercises[currentExerciseIndex].sets[currentSetForExercise].weight = Number(currentSet.weight) - 2.5;
                       onUpdateSession(updatedSession);
                     }}
-                    className="px-3 py-1 bg-red-100 text-red-700 rounded font-medium"
+                    className="px-3 py-1 bg-[#2C2C2C]/10 text-[#2C2C2C] rounded font-medium hover:bg-[#2C2C2C]/20"
                   >
                     -2.5
                   </button>
@@ -143,7 +143,7 @@ const WorkoutTracking: React.FC<WorkoutTrackingProps> = ({
                       updatedSession.exercises[currentExerciseIndex].sets[currentSetForExercise].weight = Number(currentSet.weight) + 2.5;
                       onUpdateSession(updatedSession);
                     }}
-                    className="px-3 py-1 bg-green-100 text-green-700 rounded font-medium"
+                    className="px-3 py-1 bg-[#8B9A5B]/20 text-[#6B7A4B] rounded font-medium hover:bg-[#8B9A5B]/30"
                   >
                     +2.5
                   </button>
@@ -151,7 +151,7 @@ const WorkoutTracking: React.FC<WorkoutTrackingProps> = ({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-[#2C2C2C] mb-2">
                   Reps{' '}
                   {template.isFailure
                     ? '(to failure)'
@@ -165,7 +165,7 @@ const WorkoutTracking: React.FC<WorkoutTrackingProps> = ({
                     updatedSession.exercises[currentExerciseIndex].sets[currentSetForExercise].reps = Number(e.target.value);
                     onUpdateSession(updatedSession);
                   }}
-                  className="w-full px-4 py-3 text-xl text-center border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 text-xl text-center border border-[#E8D7C3] rounded-lg focus:ring-2 focus:ring-[#8B9A5B] focus:border-transparent"
                   min="0"
                 />
               </div>
@@ -173,7 +173,7 @@ const WorkoutTracking: React.FC<WorkoutTrackingProps> = ({
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-[#2C2C2C] mb-2">
                   RPE (1-10, optional)
                 </label>
                 <select
@@ -183,7 +183,7 @@ const WorkoutTracking: React.FC<WorkoutTrackingProps> = ({
                     updatedSession.exercises[currentExerciseIndex].sets[currentSetForExercise].rpe = e.target.value ? Number(e.target.value) : undefined;
                     onUpdateSession(updatedSession);
                   }}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-3 border border-[#E8D7C3] rounded-lg focus:ring-2 focus:ring-[#8B9A5B] focus:border-transparent"
                 >
                   <option value="">Select RPE</option>
                   {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => (
@@ -195,17 +195,17 @@ const WorkoutTracking: React.FC<WorkoutTrackingProps> = ({
               </div>
 
               <div className="bg-white rounded-lg p-4">
-                <h4 className="font-medium text-gray-800 mb-2">Set Progress</h4>
+                <h4 className="font-medium text-[#2C2C2C] mb-2">Set Progress</h4>
                 <div className="grid grid-cols-4 gap-2">
                   {currentExercise.sets.map((set, idx) => (
                     <div
                       key={idx}
                       className={`text-center p-2 rounded text-sm ${
                         idx < currentSetForExercise
-                          ? 'bg-green-100 text-green-800'
+                          ? 'bg-[#8B9A5B]/20 text-[#6B7A4B]'
                           : idx === currentSetForExercise
-                          ? 'bg-blue-100 text-blue-800 border-2 border-blue-500'
-                          : 'bg-gray-100 text-gray-500'
+                          ? 'bg-[#8B9A5B]/30 text-[#6B7A4B] border-2 border-[#8B9A5B]'
+                          : 'bg-[#F0E6D6] text-[#2C2C2C]/60'
                       }`}
                     >
                       <div className="font-medium">Set {idx + 1}</div>
@@ -230,7 +230,7 @@ const WorkoutTracking: React.FC<WorkoutTrackingProps> = ({
                   currentSet.rpe
                 )
               }
-              className="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white font-semibold py-4 px-8 rounded-xl shadow-medium hover:shadow-strong transition-all duration-300 transform hover:scale-105"
+              className="bg-gradient-to-r from-[#8B9A5B] to-[#6B7A4B] hover:from-[#6B7A4B] hover:to-[#5A6940] text-white font-semibold py-4 px-8 rounded-xl shadow-medium hover:shadow-strong transition-all duration-300 transform hover:scale-105"
             >
               <CheckCircle className="w-5 h-5 mr-2" />
               Complete Set
@@ -238,12 +238,12 @@ const WorkoutTracking: React.FC<WorkoutTrackingProps> = ({
           </div>
         </div>
       ) : (
-        <div className="bg-green-50 border border-green-200 rounded-xl p-6 text-center">
-          <div className="text-green-600 text-lg font-medium mb-2">
+        <div className="bg-[#8B9A5B]/10 border border-[#8B9A5B]/30 rounded-xl p-6 text-center">
+          <div className="text-[#6B7A4B] text-lg font-medium mb-2">
             <CheckCircle className="w-5 h-5 mr-2 inline" />
             {currentExercise.exerciseName} Complete!
           </div>
-          <p className="text-green-700 text-sm">
+          <p className="text-[#6B7A4B] text-sm">
             Select another exercise above or continue with the workout flow
           </p>
         </div>

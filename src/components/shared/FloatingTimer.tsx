@@ -1,232 +1,340 @@
-// import React, { useState } from 'react';
-// // import {
-// //   Timer,
-// //   Play,
-// //   Pause,
-// //   RotateCcw,
-// //   Clock,
-// //   Watch,
-// //   ChevronUp,
-// //   ChevronDown,
-// //   Flag,
-// //   X
-// // } from 'lucide-react';
-// // import { useTimer, TimerMode } from './hooks/useTimer';
+import React, { useState, useRef, useEffect } from 'react';
+import {
+  Timer,
+  Play,
+  Pause,
+  RotateCcw,
+  Clock,
+  Watch,
+  ChevronDown,
+  Flag,
+  X
+} from 'lucide-react';
+import { useTimer, type TimerMode } from './hooks/useTimer';
 
-// interface FloatingTimerProps {
-//   isVisible: boolean;
-//   onClose?: () => void;
-// }
+interface FloatingTimerProps {
+  isVisible: boolean;
+  onClose?: () => void;
+}
 
-// const FloatingTimer: React.FC<FloatingTimerProps> = ({ isVisible, onClose }) => {
-//   const [isExpanded, setIsExpanded] = useState(false);
-//   const [showSettings, setShowSettings] = useState(false);
-//   const [countdownInput, setCountdownInput] = useState('60');
-//   const {
-//     timerState,
-//     start,
-//     pause,
-//     reset,
-//     lap,
-//     setMode,
-//     setCountdownTime,
-//     formatTime
-//   } = useTimer();
+interface DragState {
+  isDragging: boolean;
+  dragOffset: { x: number; y: number };
+}
 
-//   if (!isVisible) return null;
+interface ResizeState {
+  isResizing: boolean;
+  startSize: { width: number; height: number };
+  startPos: { x: number; y: number };
+}
 
-//   const handleModeChange = (mode: TimerMode) => {
-//     if (mode === 'countdown') {
-//       const seconds = parseInt(countdownInput) || 60;
-//       setMode(mode, seconds);
-//     } else {
-//       setMode(mode);
-//     }
-//     setShowSettings(false);
-//   };
+const FloatingTimer: React.FC<FloatingTimerProps> = ({ isVisible, onClose }) => {
+  const [isExpanded, setIsExpanded] = useState(true);
+  const [showSettings, setShowSettings] = useState(false);
+  const [timerInput, setTimerInput] = useState('120');
+  const [position, setPosition] = useState({ x: 20, y: 20 });
+  const [size, setSize] = useState({ width: 320, height: 'auto' as const });
+  const [dragState, setDragState] = useState<DragState>({ isDragging: false, dragOffset: { x: 0, y: 0 } });
+  const [resizeState, setResizeState] = useState<ResizeState>({ 
+    isResizing: false, 
+    startSize: { width: 320, height: 0 }, 
+    startPos: { x: 0, y: 0 } 
+  });
+  
+  const timerRef = useRef<HTMLDivElement>(null);
+  const {
+    timerState,
+    start,
+    pause,
+    reset,
+    lap,
+    setMode,
+    setCountdownTime,
+    formatTime
+  } = useTimer();
 
-//   const handleCountdownSet = () => {
-//     const seconds = parseInt(countdownInput) || 60;
-//     setCountdownTime(seconds);
-//     setShowSettings(false);
-//   };
+  // Handle dragging
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (dragState.isDragging) {
+        setPosition({
+          x: e.clientX - dragState.dragOffset.x,
+          y: e.clientY - dragState.dragOffset.y
+        });
+      }
+      
+      if (resizeState.isResizing) {
+        const deltaX = e.clientX - resizeState.startPos.x;
+        const newWidth = Math.max(280, resizeState.startSize.width + deltaX);
+        setSize(prev => ({ ...prev, width: newWidth }));
+      }
+    };
 
-//   // Collapsed floating button
-//   if (!isExpanded) {
-//     return (
-//       <div className="fixed bottom-4 right-4 z-50">
-//         <button
-//           onClick={() => setIsExpanded(true)}
-//           className="bg-blue-600 hover:bg-blue-700 text-white rounded-full p-4 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-//         >
-//           <Timer className="w-6 h-6" />
-//         </button>
-//       </div>
-//     );
-//   }
+    const handleMouseUp = () => {
+      setDragState(prev => ({ ...prev, isDragging: false }));
+      setResizeState(prev => ({ ...prev, isResizing: false }));
+    };
 
-//   // Expanded timer widget
-//   return (
-//     <div className="fixed bottom-4 right-4 z-50">
-//       <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 p-4 w-80 max-w-[calc(100vw-2rem)]">
-//         {/* Header */}
-//         <div className="flex items-center justify-between mb-3">
-//           <div className="flex items-center gap-2">
-//             <Timer className="w-5 h-5 text-blue-600" />
-//             <span className="font-semibold text-gray-800">
-//               {timerState.mode === 'stopwatch' ? 'Stopwatch' : 'Countdown'}
-//             </span>
-//           </div>
-//           <div className="flex items-center gap-2">
-//             <button
-//               onClick={() => setShowSettings(!showSettings)}
-//               className="p-1 hover:bg-gray-100 rounded transition-colors"
-//             >
-//               <Clock className="w-4 h-4 text-gray-600" />
-//             </button>
-//             <button
-//               onClick={() => setIsExpanded(false)}
-//               className="p-1 hover:bg-gray-100 rounded transition-colors"
-//             >
-//               <ChevronDown className="w-4 h-4 text-gray-600" />
-//             </button>
-//             {onClose && (
-//               <button
-//                 onClick={onClose}
-//                 className="p-1 hover:bg-gray-100 rounded transition-colors"
-//               >
-//                 <X className="w-4 h-4 text-gray-600" />
-//               </button>
-//             )}
-//           </div>
-//         </div>
+    if (dragState.isDragging || resizeState.isResizing) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [dragState, resizeState]);
 
-//         {/* Settings Panel */}
-//         {showSettings && (
-//           <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-//             <div className="grid grid-cols-2 gap-2 mb-3">
-//               <button
-//                 onClick={() => handleModeChange('stopwatch')}
-//                 className={`p-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
-//                   timerState.mode === 'stopwatch'
-//                     ? 'bg-blue-600 text-white'
-//                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-//                 }`}
-//               >
-//                 <Watch className="w-4 h-4" />
-//                 Stopwatch
-//               </button>
-//               <button
-//                 onClick={() => handleModeChange('countdown')}
-//                 className={`p-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
-//                   timerState.mode === 'countdown'
-//                     ? 'bg-blue-600 text-white'
-//                     : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-//                 }`}
-//               >
-//                 <Clock className="w-4 h-4" />
-//                 Countdown
-//               </button>
-//             </div>
+  const handleDragStart = (e: React.MouseEvent) => {
+    if (timerRef.current) {
+      const rect = timerRef.current.getBoundingClientRect();
+      setDragState({
+        isDragging: true,
+        dragOffset: {
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top
+        }
+      });
+    }
+  };
 
-//             {timerState.mode === 'countdown' && (
-//               <div className="flex gap-2">
-//                 <input
-//                   type="number"
-//                   value={countdownInput}
-//                   onChange={(e) => setCountdownInput(e.target.value)}
-//                   placeholder="Seconds"
-//                   className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-//                   min="1"
-//                 />
-//                 <button
-//                   onClick={handleCountdownSet}
-//                   className="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors"
-//                 >
-//                   Set
-//                 </button>
-//               </div>
-//             )}
-//           </div>
-//         )}
+  const handleResizeStart = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setResizeState({
+      isResizing: true,
+      startSize: { width: size.width, height: 0 },
+      startPos: { x: e.clientX, y: e.clientY }
+    });
+  };
 
-//         {/* Timer Display */}
-//         <div className="text-center mb-4">
-//           <div
-//             className={`text-4xl font-bold font-mono ${
-//               timerState.mode === 'countdown' && timerState.time <= 10 && timerState.time > 0
-//                 ? 'text-red-600'
-//                 : 'text-gray-800'
-//             }`}
-//           >
-//             {formatTime(timerState.time)}
-//           </div>
-//           {timerState.mode === 'countdown' && timerState.targetTime && (
-//             <div className="text-sm text-gray-500 mt-1">
-//               Target: {formatTime(timerState.targetTime)}
-//             </div>
-//           )}
-//         </div>
+  if (!isVisible) return null;
 
-//         {/* Controls */}
-//         <div className="flex items-center justify-center gap-3 mb-4">
-//           <button
-//             onClick={timerState.isRunning ? pause : start}
-//             className={`p-3 rounded-xl text-white font-medium transition-all duration-200 transform hover:scale-105 ${
-//               timerState.isRunning
-//                 ? 'bg-orange-500 hover:bg-orange-600'
-//                 : 'bg-green-500 hover:bg-green-600'
-//             }`}
-//           >
-//             {timerState.isRunning ? (
-//               <Pause className="w-5 h-5" />
-//             ) : (
-//               <Play className="w-5 h-5" />
-//             )}
-//           </button>
+  const handleModeChange = (mode: TimerMode) => {
+    if (mode === 'timer') {
+      const seconds = parseInt(timerInput) || 120;
+      setMode(mode, seconds);
+    } else {
+      setMode(mode);
+    }
+    setShowSettings(false);
+  };
 
-//           <button
-//             onClick={reset}
-//             className="p-3 rounded-xl bg-gray-500 hover:bg-gray-600 text-white font-medium transition-all duration-200 transform hover:scale-105"
-//           >
-//             <RotateCcw className="w-5 h-5" />
-//           </button>
+  const handleTimerSet = (seconds: number) => {
+    setCountdownTime(seconds);
+  };
 
-//           {timerState.mode === 'stopwatch' && (
-//             <button
-//               onClick={lap}
-//               disabled={!timerState.isRunning}
-//               className="p-3 rounded-xl bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white font-medium transition-all duration-200 transform hover:scale-105 disabled:transform-none"
-//             >
-//               <Flag className="w-5 h-5" />
-//             </button>
-//           )}
-//         </div>
+  // Collapsed floating button
+  if (!isExpanded) {
+    return (
+      <div 
+        ref={timerRef}
+        className="fixed z-[9999] cursor-move"
+        style={{ left: position.x, top: position.y }}
+        onMouseDown={handleDragStart}
+      >
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsExpanded(true);
+          }}
+          className="bg-[#8B9A5B] hover:bg-[#6B7A4B] text-white rounded-full p-4 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 pointer-events-auto"
+        >
+          <Timer className="w-6 h-6" />
+        </button>
+      </div>
+    );
+  }
 
-//         {/* Lap Times */}
-//         {timerState.mode === 'stopwatch' && timerState.laps.length > 0 && (
-//           <div className="max-h-32 overflow-y-auto">
-//             <div className="text-sm font-medium text-gray-700 mb-2">Laps:</div>
-//             <div className="space-y-1">
-//               {timerState.laps.map((lapTime, index) => (
-//                 <div key={index} className="flex justify-between text-sm bg-gray-50 rounded px-2 py-1">
-//                   <span>Lap {index + 1}</span>
-//                   <span className="font-mono">{formatTime(lapTime)}</span>
-//                 </div>
-//               ))}
-//             </div>
-//           </div>
-//         )}
+  // Expanded timer widget
+  return (
+    <div 
+      ref={timerRef}
+      className="fixed z-[9999] pointer-events-auto"
+      style={{ 
+        left: position.x, 
+        top: position.y,
+        width: size.width
+      }}
+    >
+      <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl border border-[#E8D7C3] overflow-hidden">
+        {/* Draggable Header */}
+        <div 
+          className="flex items-center justify-between p-4 cursor-move bg-gradient-to-r from-[#F0E6D6] to-[#E8D7C3] border-b border-[#E8D7C3]"
+          onMouseDown={handleDragStart}
+        >
+          <div className="flex items-center gap-2">
+            <Timer className="w-5 h-5 text-[#8B9A5B]" />
+            <span className="font-semibold text-[#2C2C2C]">
+              {timerState.mode === 'stopwatch' ? 'Stopwatch' : 'Timer'}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowSettings(!showSettings);
+              }}
+              className="p-1 hover:bg-[#E8D7C3] rounded transition-colors"
+            >
+              <Clock className="w-4 h-4 text-[#2C2C2C]/60" />
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsExpanded(false);
+              }}
+              className="p-1 hover:bg-[#E8D7C3] rounded transition-colors"
+            >
+              <ChevronDown className="w-4 h-4 text-[#2C2C2C]/60" />
+            </button>
+            {onClose && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onClose();
+                }}
+                className="p-1 hover:bg-[#E8D7C3] rounded transition-colors"
+              >
+                <X className="w-4 h-4 text-[#2C2C2C]/60" />
+              </button>
+            )}
+          </div>
+        </div>
 
-//         {/* Countdown finished alert */}
-//         {timerState.mode === 'countdown' && timerState.time === 0 && (
-//           <div className="text-center text-red-600 font-semibold">
-//             ⏰ Time's Up!
-//           </div>
-//         )}
-//       </div>
-//     </div>
-//   );
-// };
+        <div className="p-4">
+          {/* Settings Panel */}
+          {showSettings && (
+            <div className="mb-4 p-3 bg-[#FAF7F2] rounded-lg border border-[#E8D7C3]">
+              <div className="grid grid-cols-2 gap-2 mb-3">
+                <button
+                  onClick={() => handleModeChange('stopwatch')}
+                  className={`p-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
+                    timerState.mode === 'stopwatch'
+                      ? 'bg-[#8B9A5B] text-white'
+                      : 'bg-[#E8D7C3] text-[#2C2C2C] hover:bg-[#F0E6D6]'
+                  }`}
+                >
+                  <Watch className="w-4 h-4" />
+                  Stopwatch
+                </button>
+                <button
+                  onClick={() => handleModeChange('timer')}
+                  className={`p-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 ${
+                    timerState.mode === 'timer'
+                      ? 'bg-[#8B9A5B] text-white'
+                      : 'bg-[#E8D7C3] text-[#2C2C2C] hover:bg-[#F0E6D6]'
+                  }`}
+                >
+                  <Clock className="w-4 h-4" />
+                  Timer
+                </button>
+              </div>
 
-// export default FloatingTimer;
+            </div>
+          )}
+
+          {/* Timer Display */}
+          <div className="text-center mb-4">
+            {timerState.mode === 'timer' ? (
+              <input
+                type="text"
+                value={formatTime(timerState.time)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  // Parse MM:SS format
+                  const parts = value.split(':');
+                  if (parts.length === 2) {
+                    const minutes = parseInt(parts[0]) || 0;
+                    const seconds = parseInt(parts[1]) || 0;
+                    const totalSeconds = minutes * 60 + seconds;
+                    if (totalSeconds > 0) {
+                      handleTimerSet(totalSeconds);
+                    }
+                  }
+                }}
+                className={`text-4xl font-bold font-mono text-center bg-transparent border-none outline-none w-full ${
+                  timerState.time <= 10 && timerState.time > 0
+                    ? 'text-red-600'
+                    : 'text-[#2C2C2C]'
+                }`}
+                style={{ caretColor: 'transparent' }}
+              />
+            ) : (
+              <div className="text-4xl font-bold font-mono text-[#2C2C2C]">
+                {formatTime(timerState.time)}
+              </div>
+            )}
+          </div>
+
+          {/* Controls */}
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <button
+              onClick={timerState.isRunning ? pause : start}
+              className={`p-3 rounded-xl text-white font-medium transition-all duration-200 transform hover:scale-105 ${
+                timerState.isRunning
+                  ? 'bg-orange-500 hover:bg-orange-600'
+                  : 'bg-[#8B9A5B] hover:bg-[#6B7A4B]'
+              }`}
+            >
+              {timerState.isRunning ? (
+                <Pause className="w-5 h-5" />
+              ) : (
+                <Play className="w-5 h-5" />
+              )}
+            </button>
+
+            <button
+              onClick={reset}
+              className="p-3 rounded-xl bg-[#2C2C2C] hover:bg-[#2C2C2C]/80 text-white font-medium transition-all duration-200 transform hover:scale-105"
+            >
+              <RotateCcw className="w-5 h-5" />
+            </button>
+
+            {timerState.mode === 'stopwatch' && (
+              <button
+                onClick={lap}
+                disabled={!timerState.isRunning}
+                className="p-3 rounded-xl bg-[#8B9A5B] hover:bg-[#6B7A4B] disabled:bg-[#E8D7C3] disabled:cursor-not-allowed text-white font-medium transition-all duration-200 transform hover:scale-105 disabled:transform-none"
+              >
+                <Flag className="w-5 h-5" />
+              </button>
+            )}
+          </div>
+
+          {/* Lap Times */}
+          {timerState.mode === 'stopwatch' && timerState.laps.length > 0 && (
+            <div className="max-h-32 overflow-y-auto">
+              <div className="text-sm font-medium text-[#2C2C2C] mb-2">Laps:</div>
+              <div className="space-y-1">
+                {timerState.laps.map((lapTime, index) => (
+                  <div key={index} className="flex justify-between text-sm bg-[#FAF7F2] rounded px-2 py-1 border border-[#E8D7C3]">
+                    <span>Lap {index + 1}</span>
+                    <span className="font-mono">{formatTime(lapTime)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Timer finished alert */}
+          {timerState.mode === 'timer' && timerState.time === 0 && (
+            <div className="text-center text-red-600 font-semibold">
+              ⏰ Time's Up!
+            </div>
+          )}
+        </div>
+
+        {/* Resize Handle */}
+        <div 
+          className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize bg-[#E8D7C3] hover:bg-[#8B9A5B] transition-colors"
+          onMouseDown={handleResizeStart}
+        >
+          <div className="absolute bottom-1 right-1 w-2 h-2 border-r-2 border-b-2 border-[#2C2C2C]/40"></div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default FloatingTimer;

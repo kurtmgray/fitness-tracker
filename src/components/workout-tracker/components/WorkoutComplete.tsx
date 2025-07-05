@@ -1,5 +1,5 @@
 import React from 'react';
-import { Trophy, BarChart3 } from 'lucide-react';
+import { Trophy } from 'lucide-react';
 
 interface WorkoutCompleteProps {
   currentSession: WorkoutSession;
@@ -42,20 +42,20 @@ const WorkoutComplete: React.FC<WorkoutCompleteProps> = ({
   return (
     <div className="text-center">
       <div className="mb-8">
-        <div className="w-20 h-20 bg-gradient-to-r from-green-400 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+        <div className="w-20 h-20 bg-gradient-to-r from-[#8B9A5B] to-[#6B7A4B] rounded-full flex items-center justify-center mx-auto mb-4">
           <Trophy className="w-10 h-10 text-white" />
         </div>
-        <h2 className="text-3xl font-bold text-gray-800 mb-2">
+        <h2 className="text-3xl font-bold text-[#2C2C2C] mb-2">
           Workout Complete!
         </h2>
-        <p className="text-lg text-gray-600">
+        <p className="text-lg text-[#2C2C2C]/80">
           Great job finishing Day {selectedDay?.slice(-1)}:{' '}
           {selectedDay && dayTitles[selectedDay]}
         </p>
       </div>
 
-      <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-2xl p-6">
-        <h3 className="text-xl font-bold text-gray-800 mb-4">
+      <div className="bg-gradient-to-r from-[#FAF7F2] to-[#F0E6D6] rounded-2xl p-6">
+        <h3 className="text-xl font-bold text-[#2C2C2C] mb-4">
           Workout Summary
         </h3>
         {currentSession && (
@@ -75,14 +75,14 @@ const WorkoutComplete: React.FC<WorkoutCompleteProps> = ({
                   className="flex justify-between items-center bg-white rounded-lg p-3"
                 >
                   <div>
-                    <span className="font-medium">{exercise.exerciseName}</span>
+                    <span className="font-medium text-[#2C2C2C]">{exercise.exerciseName}</span>
                     {exercise.useBosoBall && (
-                      <span className="ml-2 text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">
+                      <span className="ml-2 text-xs bg-[#8B9A5B]/20 text-[#6B7A4B] px-2 py-1 rounded">
                         Bosu Ball
                       </span>
                     )}
                   </div>
-                  <div className="text-right text-sm text-gray-600">
+                  <div className="text-right text-sm text-[#2C2C2C]/70">
                     <div>{completedSets} sets completed</div>
                     <div>{totalVolume} lbs total volume</div>
                   </div>
@@ -96,12 +96,12 @@ const WorkoutComplete: React.FC<WorkoutCompleteProps> = ({
       <div className="space-y-4">
         <button
           onClick={onStartAnother}
-          className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-bold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+          className="bg-gradient-to-r from-[#8B9A5B] to-[#6B7A4B] hover:from-[#6B7A4B] hover:to-[#5A6940] text-white font-bold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
         >
           Start Another Workout
         </button>
 
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-[#2C2C2C]/60">
           Workout saved to your training history
         </div>
       </div>

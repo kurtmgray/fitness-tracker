@@ -1,5 +1,28 @@
 
+import { loadWorkoutDataToLocalStorage, getWorkoutDataFromLocalStorage } from './loadWorkoutData';
+
 export const generateMockData = (): WeekData[] => {
+  // First try to load real workout data from localStorage
+  const realData = getWorkoutDataFromLocalStorage();
+  
+  if (realData && realData.length > 0) {
+    console.log(`Using ${realData.length} weeks of real workout data from localStorage`);
+    return realData;
+  }
+  
+  // If no real data exists, load it from JSON and return it
+  const loadedData = loadWorkoutDataToLocalStorage();
+  if (loadedData && loadedData.length > 0) {
+    console.log(`Loaded and using ${loadedData.length} weeks of real workout data`);
+    return loadedData;
+  }
+  
+  // Fallback to generated mock data if real data fails to load
+  console.log('Falling back to generated mock data');
+  return generateFallbackMockData();
+};
+
+const generateFallbackMockData = (): WeekData[] => {
   const weeks: WeekData[] = [];
   const today = new Date();
 

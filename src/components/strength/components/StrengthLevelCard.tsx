@@ -34,17 +34,17 @@ const StrengthLevelCard: React.FC<StrengthLevelCardProps> = ({
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-xl shadow-lg overflow-hidden">
-      <div className="bg-gradient-to-r from-gray-50 to-blue-50 p-4 sm:p-6 border-b">
+    <div className="bg-[#FAF7F2] border border-[#E8D7C3] rounded-xl shadow-lg overflow-hidden">
+      <div className="bg-gradient-to-r from-[#F0E6D6] to-[#E8D7C3] p-4 sm:p-6 border-b">
         <div className="flex justify-between items-center">
-          <h3 className="text-xl sm:text-2xl font-bold text-gray-800">
+          <h3 className="text-xl sm:text-2xl font-bold text-[#2C2C2C]">
             {liftNames[lift]}
           </h3>
           <div className="text-right">
-            <p className="text-2xl sm:text-3xl font-bold text-gray-800">
+            <p className="text-2xl sm:text-3xl font-bold text-[#2C2C2C]">
               {weights[lift]} lbs
             </p>
-            <p className="text-base sm:text-lg text-gray-600">
+            <p className="text-base sm:text-lg text-[#2C2C2C]">
               {result.ratio}x bodyweight
             </p>
           </div>
@@ -65,36 +65,36 @@ const StrengthLevelCard: React.FC<StrengthLevelCardProps> = ({
                 key={level}
                 className={`p-1 rounded-lg text-center border-2 transition-all relative ${
                   isCurrentLevel
-                    ? 'border-green-500 bg-green-100 scale-105 shadow-lg'
+                    ? 'border-[#8B9A5B] bg-[#8B9A5B]/20 scale-105 shadow-lg'
                     : isAchieved
-                    ? 'border-green-300 bg-green-50'
-                    : 'border-gray-200 bg-gray-50'
+                    ? 'border-[#8B9A5B] bg-[#8B9A5B]/10'
+                    : 'border-[#E8D7C3] bg-[#F0E6D6]'
                 }`}
               >
                 {isCurrentLevel && (
                   <div className="absolute -top-1 -right-1 sm:hidden">
-                    <div className="w-2 h-2 bg-green-500 rounded-full border border-white"></div>
+                    <div className="w-2 h-2 bg-[#8B9A5B] rounded-full border border-white"></div>
                   </div>
                 )}
 
                 <div className="sm:hidden">
                   <div
                     className={`font-bold text-xs leading-none mb-1 ${
-                      isCurrentLevel ? 'text-green-700' : 'text-gray-700'
+                      isCurrentLevel ? 'text-[#8B9A5B]' : 'text-[#2C2C2C]'
                     }`}
                   >
                     {mobileLabel[level]}
                   </div>
                   <div
                     className={`font-bold text-xs leading-none mb-1 ${
-                      isCurrentLevel ? 'text-green-800' : 'text-gray-800'
+                      isCurrentLevel ? 'text-[#2C2C2C]' : 'text-[#2C2C2C]'
                     }`}
                   >
                     {weight}
                   </div>
                   <div
                     className={`text-xs leading-none ${
-                      isCurrentLevel ? 'text-green-600' : 'text-gray-500'
+                      isCurrentLevel ? 'text-[#8B9A5B]' : 'text-[#2C2C2C]'
                     }`}
                   >
                     {ratio.toFixed(1)}x
@@ -104,26 +104,26 @@ const StrengthLevelCard: React.FC<StrengthLevelCardProps> = ({
                 <div className="hidden sm:block p-2">
                   <div
                     className={`font-bold text-sm capitalize mb-1 ${
-                      isCurrentLevel ? 'text-green-700' : 'text-gray-700'
+                      isCurrentLevel ? 'text-[#8B9A5B]' : 'text-[#2C2C2C]'
                     }`}
                   >
                     {level}
                     {isCurrentLevel && (
-                      <div className="text-xs bg-green-500 text-white px-1 py-0.5 rounded-full mt-1">
+                      <div className="text-xs bg-[#8B9A5B] text-white px-1 py-0.5 rounded-full mt-1">
                         YOUR LEVEL
                       </div>
                     )}
                   </div>
                   <div
                     className={`font-bold text-base ${
-                      isCurrentLevel ? 'text-green-800' : 'text-gray-800'
+                      isCurrentLevel ? 'text-[#2C2C2C]' : 'text-[#2C2C2C]'
                     }`}
                   >
                     {weight}
                   </div>
                   <div
                     className={`text-xs ${
-                      isCurrentLevel ? 'text-green-600' : 'text-gray-500'
+                      isCurrentLevel ? 'text-[#8B9A5B]' : 'text-[#2C2C2C]'
                     }`}
                   >
                     {ratio.toFixed(1)}x
@@ -135,13 +135,13 @@ const StrengthLevelCard: React.FC<StrengthLevelCardProps> = ({
         </div>
 
         <div className="mb-3">
-          <div className="flex justify-between text-sm text-gray-600 mb-1">
+          <div className="flex justify-between text-sm text-[#2C2C2C] mb-1">
             <span>Progress to {result.progress.nextLevel}</span>
             <span>{result.progress.progress}%</span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+          <div className="w-full bg-[#E8D7C3] rounded-full h-3 overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-blue-500 to-green-500 transition-all duration-300 ease-out"
+              className="h-full bg-gradient-to-r from-[#8B9A5B] to-[#8B9A5B] transition-all duration-300 ease-out"
               style={{
                 width: `${Math.min(100, result.progress.progress)}%`,
               }}
@@ -150,7 +150,7 @@ const StrengthLevelCard: React.FC<StrengthLevelCardProps> = ({
         </div>
 
         {result.progress.nextLevel !== 'elite' && (
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-[#2C2C2C]">
             Next goal: <strong>{result.progress.nextWeight} lbs</strong> for{' '}
             {result.progress.nextLevel} level (
             {result.progress.nextWeight - weights[lift]} lbs to go)

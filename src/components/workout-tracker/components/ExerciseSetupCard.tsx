@@ -24,14 +24,14 @@ const ExerciseSetupCard: React.FC<ExerciseSetupCardProps> = ({
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+    <div className="bg-white rounded-lg border border-[#E8D7C3] overflow-hidden">
       <div
-        className="p-4 cursor-pointer hover:bg-gray-50 transition-colors"
+        className="p-4 cursor-pointer hover:bg-[#FAF7F2] transition-colors"
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex justify-between items-start">
           <div>
-            <h4 className="font-bold text-gray-800 flex items-center">
+            <h4 className="font-bold text-[#2C2C2C] flex items-center">
               {exercise.name}
               <svg
                 className={`w-4 h-4 ml-2 transition-transform ${
@@ -49,26 +49,34 @@ const ExerciseSetupCard: React.FC<ExerciseSetupCardProps> = ({
                 />
               </svg>
             </h4>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-[#2C2C2C]/70">
               {exercise.sets} sets × {exercise.reps} reps
             </p>
 
-            {suggestion && (
-              <p className="text-sm text-muted-foreground mt-1">
-                💡 Suggested: {suggestion.suggestedWeight} lbs (based on{' '}
-                {suggestion.lastWeight} lbs @ RPE{' '}
-                {suggestion.avgRpe.toFixed(1)})
-              </p>
-            )}
+            <div className="mt-2 space-y-1">
+              {lastExercise && (
+                <p className="text-sm text-[#2C2C2C]/80">
+                  📊 Last performed: <span className="font-medium">{suggestion?.lastWeight || lastExercise.sets[0]?.weight || 0} lbs</span>
+                  {lastExercise.sets[0]?.reps && ` × ${lastExercise.sets[0].reps} reps`}
+                </p>
+              )}
+              
+              {suggestion && (
+                <p className="text-sm text-[#8B9A5B]">
+                  💡 AI Suggested: <span className="font-medium">{suggestion.suggestedWeight} lbs</span>
+                  {suggestion.avgRpe && ` (RPE ${suggestion.avgRpe.toFixed(1)})`}
+                </p>
+              )}
+            </div>
 
             {currentExercise.useBosoBall && (
-              <span className="inline-block bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-xs font-medium mt-1">
+              <span className="inline-block bg-[#8B9A5B]/20 text-[#6B7A4B] px-2 py-1 rounded-full text-xs font-medium mt-1">
                 Using Bosu Ball
               </span>
             )}
           </div>
           {lastExercise && !isExpanded && (
-            <div className="text-right text-sm text-gray-500">
+            <div className="text-right text-sm text-[#2C2C2C]/60">
               <div>Last: {lastExercise.sets[0]?.weight || 0} lbs</div>
               <div>{lastExercise.sets[0]?.reps || 0} reps</div>
             </div>
@@ -80,11 +88,11 @@ const ExerciseSetupCard: React.FC<ExerciseSetupCardProps> = ({
             {currentExercise.sets.map((set, setIdx) => (
               <div
                 key={setIdx}
-                className="text-center p-2 bg-gray-50 rounded"
+                className="text-center p-2 bg-[#F0E6D6] rounded"
               >
-                <div className="font-medium">Set {setIdx + 1}</div>
-                <div>{set.weight} lbs</div>
-                <div>{set.reps} reps</div>
+                <div className="font-medium text-[#2C2C2C]">Set {setIdx + 1}</div>
+                <div className="text-[#2C2C2C]/80">{set.weight} lbs</div>
+                <div className="text-[#2C2C2C]/80">{set.reps} reps</div>
               </div>
             ))}
           </div>
@@ -92,7 +100,7 @@ const ExerciseSetupCard: React.FC<ExerciseSetupCardProps> = ({
       </div>
 
       {isExpanded && (
-        <div className="border-t border-gray-200 p-4 bg-gray-50">
+        <div className="border-t border-[#E8D7C3] p-4 bg-[#F0E6D6]">
           {exercise.hasBosoBallOption && (
             <div className="mb-4">
               <label className="flex items-center space-x-2">
@@ -102,23 +110,23 @@ const ExerciseSetupCard: React.FC<ExerciseSetupCardProps> = ({
                   onChange={(e) =>
                     onUpdateExercise({ useBosoBall: e.target.checked })
                   }
-                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  className="rounded border-[#E8D7C3] text-[#8B9A5B] focus:ring-[#8B9A5B]"
                 />
-                <span className="text-sm text-gray-700">Use Bosu Ball</span>
+                <span className="text-sm text-[#2C2C2C]">Use Bosu Ball</span>
               </label>
             </div>
           )}
 
           <div className="space-y-3">
-            <h5 className="font-medium text-gray-800">Adjust Sets:</h5>
+            <h5 className="font-medium text-[#2C2C2C]">Adjust Sets:</h5>
             {currentExercise.sets.map((set, setIdx) => (
               <div
                 key={setIdx}
-                className="bg-white rounded-lg p-3 border border-gray-200"
+                className="bg-white rounded-lg p-3 border border-[#E8D7C3]"
               >
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                    <label className="block text-xs font-medium text-[#2C2C2C] mb-1">
                       Set {setIdx + 1} Weight (lbs)
                     </label>
                     <input
@@ -132,13 +140,13 @@ const ExerciseSetupCard: React.FC<ExerciseSetupCardProps> = ({
                         };
                         onUpdateExercise({ sets: updatedSets });
                       }}
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 text-sm border border-[#E8D7C3] rounded focus:ring-2 focus:ring-[#8B9A5B] focus:border-transparent"
                       min="0"
                       step="2.5"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                    <label className="block text-xs font-medium text-[#2C2C2C] mb-1">
                       Target Reps
                     </label>
                     <input
@@ -152,7 +160,7 @@ const ExerciseSetupCard: React.FC<ExerciseSetupCardProps> = ({
                         };
                         onUpdateExercise({ sets: updatedSets });
                       }}
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 text-sm border border-[#E8D7C3] rounded focus:ring-2 focus:ring-[#8B9A5B] focus:border-transparent"
                       min="0"
                     />
                   </div>
