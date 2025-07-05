@@ -1,83 +1,37 @@
 import React from 'react';
 import { Dumbbell } from 'lucide-react';
 import { useWorkoutSession } from './hooks/useWorkoutSession';
-import WorkoutDaySelector from './components/WorkoutDaySelector';
+import DaySelection from './components/DaySelection';
 import WorkoutSetup from './components/WorkoutSetup';
 import WorkoutTracking from './components/WorkoutTracking';
 import WorkoutComplete from './components/WorkoutComplete';
 
 const WorkoutTracker: React.FC = () => {
   const {
+    // State
     currentPhase,
     selectedDay,
     currentSession,
     currentExerciseIndex,
-    currentSetIndex,
     exerciseSetProgress,
+    
+    // Data
     workoutTemplates,
     dayTitles,
+    
+    // Actions
     selectDay,
     startWorkout,
     resetSession,
-    updateCurrentSet,
-    nextSet,
-    setCurrentPhase,
+    updateSession,
+    completeSet,
+    goBack,
+    setCurrentExerciseIndex,
+    
+    // Helpers
     getLastWorkout,
+    suggestNextWeight,
   } = useWorkoutSession();
-
-  const renderContent = () => {
-    switch (currentPhase) {
-      case 'selection':
-        return (
-          <WorkoutDaySelector
-            dayTitles={dayTitles}
-            workoutTemplates={workoutTemplates}
-            getLastWorkout={getLastWorkout}
-            onSelectDay={selectDay}
-          />
-        );
-
-      case 'setup':
-        if (!selectedDay || !currentSession) return null;
-        return (
-          <WorkoutSetup
-            selectedDay={selectedDay}
-            dayTitles={dayTitles}
-            currentSession={currentSession}
-            getLastWorkout={getLastWorkout}
-            onStartWorkout={startWorkout}
-            onGoBack={() => setCurrentPhase('selection')}
-          />
-        );
-
-      case 'tracking':
-        if (!currentSession) return null;
-        return (
-          <WorkoutTracking
-            currentSession={currentSession}
-            currentExerciseIndex={currentExerciseIndex}
-            currentSetIndex={currentSetIndex}
-            exerciseSetProgress={exerciseSetProgress}
-            onUpdateSet={updateCurrentSet}
-            onNextSet={nextSet}
-            onGoBack={() => setCurrentPhase('setup')}
-          />
-        );
-
-      case 'complete':
-        if (!currentSession) return null;
-        return (
-          <WorkoutComplete
-            currentSession={currentSession}
-            dayTitles={dayTitles}
-            onStartAnother={resetSession}
-          />
-        );
-
-      default:
-        return null;
-    }
-  };
 
   return (
     <div className="bg-white/95 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-soft border border-white/20 p-4 sm:p-8">
@@ -93,7 +47,51 @@ const WorkoutTracker: React.FC = () => {
         </p>
       </div>
 
-      {renderContent()}
+      {currentPhase === 'selection' && (
+        <DaySelection
+          workoutTemplates={workoutTemplates}
+          dayTitles={dayTitles}
+          getLastWorkout={getLastWorkout}
+          onSelectDay={selectDay}
+        />
+      )}
+
+      {currentPhase === 'setup' && selectedDay && currentSession && (
+        <WorkoutSetup
+          selectedDay={selectedDay}
+          currentSession={currentSession}
+          workoutTemplates={workoutTemplates}
+          dayTitles={dayTitles}
+          getLastWorkout={getLastWorkout}
+          suggestNextWeight={suggestNextWeight}
+          onGoBack={goBack}
+          onStartWorkout={startWorkout}
+          onUpdateSession={updateSession}
+        />
+      )}
+
+      {currentPhase === 'tracking' && currentSession && selectedDay && (
+        <WorkoutTracking
+          currentSession={currentSession}
+          currentExerciseIndex={currentExerciseIndex}
+          exerciseSetProgress={exerciseSetProgress}
+          workoutTemplates={workoutTemplates}
+          selectedDay={selectedDay}
+          onUpdateSession={updateSession}
+          onCompleteSet={completeSet}
+          onGoBack={goBack}
+          onSetCurrentExerciseIndex={setCurrentExerciseIndex}
+        />
+      )}
+
+      {currentPhase === 'complete' && currentSession && selectedDay && (
+        <WorkoutComplete
+          currentSession={currentSession}
+          selectedDay={selectedDay}
+          dayTitles={dayTitles}
+          onStartAnother={resetSession}
+        />
+      )}
     </div>
   );
 };

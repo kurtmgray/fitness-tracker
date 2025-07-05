@@ -116,7 +116,7 @@ export const useWorkoutSession = () => {
   const [currentSetIndex, setCurrentSetIndex] = useState(0);
   const [exerciseSetProgress, setExerciseSetProgress] = useState<Record<number, number>>({});
 
-  const { getLastWorkout, addWorkoutToHistory } = useWorkoutHistory();
+  const { workoutHistory, getLastWorkout, addWorkoutToHistory } = useWorkoutHistory();
   const { getSuggestedWeight } = useWorkoutSuggestions();
 
   const initializeSession = (day: WorkoutDay): void => {
@@ -185,39 +185,83 @@ export const useWorkoutSession = () => {
     setCurrentPhase('setup');
   };
 
-  const updateCurrentSet = (weight: number, reps: number, rpe?: number) => {
+  const updateSession = (updatedSession: WorkoutSession) => {
+    setCurrentSession(updatedSession);
+  };
+
+  const completeSet = (weight: number, reps: number, rpe?: number): void => {
     if (!currentSession) return;
 
     const updatedSession = { ...currentSession };
-    const currentExercise = updatedSession.exercises[currentExerciseIndex];
-    
-    if (currentExercise) {
-      currentExercise.sets[currentSetIndex] = {
-        weight,
-        reps,
-        completed: true,
-        rpe,
-      };
-      setCurrentSession(updatedSession);
+    const currentSetForExercise = exerciseSetProgress[currentExerciseIndex] || 0;
+
+    updatedSession.exercises[currentExerciseIndex].sets[currentSetForExercise] = {
+      weight,
+      reps,
+      completed: true,
+      rpe,
+    };
+
+    setCurrentSession(updatedSession);
+
+    const newProgress = { ...exerciseSetProgress };
+    newProgress[currentExerciseIndex] = currentSetForExercise + 1;
+    setExerciseSetProgress(newProgress);
+
+    const nextExerciseIndex = (currentExerciseIndex + 1) % updatedSession.exercises.length;
+    setCurrentExerciseIndex(nextExerciseIndex);
+
+    const isWorkoutComplete = updatedSession.exercises.every((exercise, idx) => {
+      const setsCompleted = newProgress[idx] || 0;
+      return setsCompleted >= exercise.sets.length;
+    });
+
+    if (isWorkoutComplete) {
+      setCurrentPhase('complete');
+      addWorkoutToHistory(updatedSession);
     }
   };
 
-  const nextSet = () => {
-    if (!currentSession) return;
-
-    const currentExercise = currentSession.exercises[currentExerciseIndex];
-    
-    if (currentSetIndex < currentExercise.sets.length - 1) {
-      setCurrentSetIndex(currentSetIndex + 1);
-    } else if (currentExerciseIndex < currentSession.exercises.length - 1) {
-      setCurrentExerciseIndex(currentExerciseIndex + 1);
+  const goBack = (): void => {
+    if (currentPhase === 'setup') {
+      setCurrentPhase('selection');
+      setSelectedDay(null);
+      setCurrentSession(null);
+    } else if (currentPhase === 'tracking') {
+      setCurrentPhase('setup');
+      setCurrentExerciseIndex(0);
       setCurrentSetIndex(0);
-      setExerciseSetProgress(prev => ({
-        ...prev,
-        [currentExerciseIndex]: currentExercise.sets.length
-      }));
+      setExerciseSetProgress({});
+    }
+  };
+
+  const suggestNextWeight = (lastWeight: number, lastRpe: number, weightType: string): number => {
+    let factor: number;
+
+    if (lastRpe <= 6) {
+      factor = 1.075;
+    } else if (lastRpe <= 7) {
+      factor = 1.05;
+    } else if (lastRpe <= 8.5) {
+      factor = 1.0;
+    } else if (lastRpe <= 9) {
+      factor = 0.975;
     } else {
-      completeWorkout();
+      factor = 0.925;
+    }
+
+    const suggested = lastWeight * factor;
+    const maxIncrease = Math.min(lastWeight * 1.1, lastWeight + 10);
+    const minDecrease = Math.max(lastWeight * 0.9, lastWeight - 10);
+
+    let adjusted = suggested > lastWeight ? Math.min(suggested, maxIncrease) : Math.max(suggested, minDecrease);
+
+    if (weightType === 'barbell') {
+      return Math.round(adjusted / 5) * 5;
+    } else if (weightType === 'dumbbell' || weightType === 'kettlebell') {
+      return Math.round(adjusted / 2.5) * 2.5;
+    } else {
+      return lastWeight;
     }
   };
 
@@ -229,6 +273,7 @@ export const useWorkoutSession = () => {
     currentExerciseIndex,
     currentSetIndex,
     exerciseSetProgress,
+    workoutHistory,
     
     // Data
     workoutTemplates,
@@ -239,11 +284,14 @@ export const useWorkoutSession = () => {
     startWorkout,
     completeWorkout,
     resetSession,
-    updateCurrentSet,
-    nextSet,
+    updateSession,
     setCurrentPhase,
+    completeSet,
+    goBack,
+    setCurrentExerciseIndex,
     
     // Helpers
     getLastWorkout,
+    suggestNextWeight,
   };
 };

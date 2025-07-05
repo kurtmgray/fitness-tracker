@@ -1,132 +1,125 @@
 import React from 'react';
 import { ArrowLeft, Play } from 'lucide-react';
+import ExerciseSetupCard from './ExerciseSetupCard';
 
 interface WorkoutSetupProps {
   selectedDay: WorkoutDay;
-  dayTitles: Record<WorkoutDay, string>;
   currentSession: WorkoutSession;
+  workoutTemplates: Record<WorkoutDay, ExerciseTemplate[]>;
+  dayTitles: Record<WorkoutDay, string>;
   getLastWorkout: (day: WorkoutDay) => WorkoutSession | null;
-  onStartWorkout: () => void;
+  suggestNextWeight: (
+    lastWeight: number,
+    lastRpe: number,
+    weightType: string
+  ) => number;
   onGoBack: () => void;
+  onStartWorkout: () => void;
+  onUpdateSession: (session: WorkoutSession) => void;
 }
 
 const WorkoutSetup: React.FC<WorkoutSetupProps> = ({
   selectedDay,
-  dayTitles,
   currentSession,
+  workoutTemplates,
+  dayTitles,
   getLastWorkout,
-  onStartWorkout,
+  suggestNextWeight,
   onGoBack,
+  onStartWorkout,
+  onUpdateSession,
 }) => {
+  const template = workoutTemplates[selectedDay];
   const lastWorkout = getLastWorkout(selectedDay);
 
-  const formatDate = (date: Date): string => {
-    const now = new Date();
-    const diffTime = Math.abs(now.getTime() - date.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 1) return 'Yesterday';
-    if (diffDays <= 7) return `${diffDays} days ago`;
-    return date.toLocaleDateString();
-  };
-
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
+    <div className="space-y-6">
+      <div className="flex items-center mb-4">
         <button
           onClick={onGoBack}
-          className="flex items-center text-slate-600 hover:text-slate-800 transition-colors"
+          className="flex items-center space-x-2 text-slate-600 hover:text-slate-800 transition-colors"
         >
-          <ArrowLeft className="w-5 h-5 mr-2" />
-          Choose Different Day
+          <ArrowLeft className="w-5 h-5" />
+          <span>Back to Day Selection</span>
         </button>
       </div>
 
-      <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-slate-800 mb-2">
-          {dayTitles[selectedDay]}
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-semibold text-slate-800 mb-2">
+          Day {selectedDay.slice(-1)}: {dayTitles[selectedDay]}
         </h2>
-        <p className="text-slate-600">Review your workout and make any adjustments</p>
+        <p className="text-lg text-slate-600">
+          Review and adjust your workout plan
+        </p>
+        {lastWorkout && (
+          <p className="text-sm text-gray-500 mt-2">
+            Last performed: {new Date(lastWorkout.date).toLocaleDateString()}
+          </p>
+        )}
       </div>
 
-      {lastWorkout && (
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
-          <h3 className="font-semibold text-blue-800 mb-2">Last Workout</h3>
-          <p className="text-blue-700 text-sm">
-            Completed {formatDate(lastWorkout.date)}
-            {lastWorkout.duration && ` • ${lastWorkout.duration} minutes`}
-          </p>
-          <p className="text-blue-600 text-xs mt-1">
-            Suggested weights are based on your last performance
-          </p>
+      <div className="bg-gradient-to-r from-blue-50 to-slate-50 rounded-2xl p-6 mb-6 border border-blue-100">
+        <h3 className="text-xl font-semibold text-slate-800 mb-4">
+          Today's Workout
+        </h3>
+
+        <div className="space-y-4">
+          {template.map((exercise, idx) => {
+            const lastExercise = lastWorkout?.exercises.find(
+              (ex) => ex.exerciseName === exercise.name
+            );
+            const currentExercise = currentSession.exercises[idx];
+
+            const suggestion = (() => {
+              if (!lastExercise) return null;
+
+              const completedSets = lastExercise.sets.filter(
+                (s) => s.completed
+              );
+              const lastWeight = Number(
+                completedSets[0]?.weight ?? lastExercise.sets[0]?.weight ?? 0
+              );
+              const avgRpe =
+                completedSets.length > 0
+                  ? completedSets.reduce((sum, s) => sum + (s.rpe ?? 8), 0) /
+                    completedSets.length
+                  : undefined;
+              const suggestedWeight =
+                avgRpe !== undefined
+                  ? suggestNextWeight(lastWeight, avgRpe, exercise.weightType)
+                  : lastWeight;
+
+              return avgRpe !== undefined
+                ? { suggestedWeight, lastWeight, avgRpe }
+                : null;
+            })();
+
+            return (
+              <ExerciseSetupCard
+                key={idx}
+                exercise={exercise}
+                currentExercise={currentExercise}
+                lastExercise={lastExercise}
+                suggestion={suggestion}
+                onUpdateExercise={(updates) => {
+                  const updatedSession = { ...currentSession };
+                  Object.assign(updatedSession.exercises[idx], updates);
+                  onUpdateSession(updatedSession);
+                }}
+              />
+            );
+          })}
         </div>
-      )}
-
-      <div className="space-y-4 mb-8">
-        {currentSession.exercises.map((exercise, exerciseIdx) => {
-          const firstSetWeight = exercise.sets[0]?.weight;
-          const targetReps = exercise.sets[0]?.reps;
-
-          return (
-            <div
-              key={exerciseIdx}
-              className="bg-white border border-slate-200 rounded-xl p-4 hover:shadow-medium transition-all duration-200"
-            >
-              <div className="flex justify-between items-start mb-3">
-                <div>
-                  <h3 className="font-semibold text-slate-800 text-base">
-                    {exercise.exerciseName}
-                  </h3>
-                  <p className="text-sm text-slate-600">
-                    {exercise.sets.length} sets × {targetReps} reps
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="font-bold text-lg text-slate-800">
-                    {firstSetWeight} lbs
-                  </p>
-                  <p className="text-xs text-slate-500">Suggested</p>
-                </div>
-              </div>
-
-              {exercise.useBosoBall && (
-                <div className="mb-2">
-                  <span className="inline-block text-xs bg-purple-100 text-purple-800 px-2 py-1 rounded">
-                    Bosu Ball Option Available
-                  </span>
-                </div>
-              )}
-
-              <div className="grid grid-cols-4 gap-2">
-                {exercise.sets.map((set, setIdx) => (
-                  <div
-                    key={setIdx}
-                    className="bg-slate-50 rounded-lg p-2 text-center"
-                  >
-                    <div className="text-xs text-slate-500 mb-1">Set {setIdx + 1}</div>
-                    <div className="text-sm font-medium text-slate-800">
-                      {set.weight} × {set.reps}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          );
-        })}
       </div>
 
-      <div className="space-y-4">
+      <div className="flex justify-center text-center">
         <button
           onClick={onStartWorkout}
-          className="w-full bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white font-bold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
+          className="flex gap-2 bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white font-semibold py-4 px-8 rounded-xl shadow-medium hover:shadow-strong transition-all duration-300 transform hover:scale-105"
         >
           <Play className="w-5 h-5 mr-2" />
-          Start Training
+          Start Workout
         </button>
-
-        <div className="text-center text-sm text-slate-500">
-          <p>You can adjust weights and reps during your workout</p>
-        </div>
       </div>
     </div>
   );
