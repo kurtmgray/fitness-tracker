@@ -10,11 +10,14 @@ const getWeekStart = (date: Date): Date => {
   return d;
 };
 
-export const reorganizeWorkoutsByDate = () => {
+export const reorganizeWorkoutsByDate = (inputData?: any[]) => {
+  // Use provided data or fall back to imported data
+  const dataToUse = inputData || workoutData;
+  
   // First, collect all workouts from all weeks
   const allWorkouts: any[] = [];
   
-  workoutData.forEach(week => {
+  dataToUse.forEach(week => {
     week.workouts.forEach(workout => {
       allWorkouts.push({
         ...workout,
@@ -48,33 +51,4 @@ export const reorganizeWorkoutsByDate = () => {
   return reorganizedData;
 };
 
-type WorkoutDay = 'day1' | 'day2' | 'day3';
-
-interface SetEntry {
-  weight: number | string;
-  reps: number;
-  completed: boolean;
-  rpe?: number;
-}
-
-interface ExerciseEntry {
-  exerciseName: string;
-  sets: SetEntry[];
-  useBosoBall?: boolean;
-  bandType?: string;
-  notes?: string;
-}
-
-interface WorkoutSession {
-  id: string;
-  date: Date;
-  day: WorkoutDay;
-  exercises: ExerciseEntry[];
-  duration?: number;
-  notes?: string;
-}
-
-interface WeekData {
-  weekStartDate: Date;
-  workouts: WorkoutSession[];
-}
+// Using global types from types.d.ts

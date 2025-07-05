@@ -1,9 +1,13 @@
 import { reorganizeWorkoutsByDate } from './reorganizeWorkouts';
+import { getTransformedWorkoutData } from './transformWorkoutData';
 
 export const loadWorkoutDataToLocalStorage = (): WeekData[] | null => {
   try {
+    // Get transformed workout data with proper equipment structure
+    const transformedData = getTransformedWorkoutData();
+    
     // Reorganize workouts by their actual dates into correct weeks
-    const processedData = reorganizeWorkoutsByDate();
+    const processedData = reorganizeWorkoutsByDate(transformedData);
 
     localStorage.setItem('workoutHistory', JSON.stringify(processedData));
     console.log(`Loaded ${processedData.length} weeks of properly organized workout data to localStorage`);

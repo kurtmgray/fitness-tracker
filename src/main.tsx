@@ -21,6 +21,9 @@ import { AuthProvider } from './components/auth/AuthProvider';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { trpc, trpcClient, queryClient } from './lib/trpc';
 
+// Import test utility for development
+import './utils/testTransform';
+
 const rootRoute = createRootRoute({
   component: () => (
     <ProtectedRoute>

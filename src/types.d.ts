@@ -2,10 +2,15 @@
 type WorkoutDay = 'day1' | 'day2' | 'day3';
 
 interface SetEntry {
-  weight: number | string; // "BW", "44# KB"
+  weight: number | null; // Numeric weight or null for bodyweight
   reps: number;
   completed: boolean;
   rpe?: number; // 1-10 
+  equipment?: {
+    type: 'barbell' | 'dumbbell' | 'kettlebell' | 'bodyweight' | 'plate' | 'band';
+    modifier?: 'per_hand' | 'total';
+    note?: string;
+  };
 }
 
 interface ExerciseEntry {
@@ -80,5 +85,8 @@ interface DbSessionSet {
   reps: number;
   rpe?: number;
   completed: boolean;
+  equipment_type?: 'barbell' | 'dumbbell' | 'kettlebell' | 'bodyweight' | 'plate' | 'band';
+  equipment_modifier?: 'per_hand' | 'total';
+  equipment_note?: string;
   created_at: string;
 }

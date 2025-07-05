@@ -15,7 +15,6 @@ export function GoogleLogin({
 
   useEffect(() => {
     if (!window.google) {
-      // Load Google Identity Services script
       const script = document.createElement('script');
       script.src = 'https://accounts.google.com/gsi/client';
       script.async = true;
@@ -45,7 +44,6 @@ export function GoogleLogin({
 
     function handleCredentialResponse(response: any) {
       if (response.credential) {
-        // Decode the JWT token to get user info
         const base64Url = response.credential.split('.')[1];
         const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
         const jsonPayload = decodeURIComponent(
@@ -79,7 +77,6 @@ export function GoogleLogin({
   );
 }
 
-// Extend the Window interface for TypeScript
 declare global {
   interface Window {
     google: any;

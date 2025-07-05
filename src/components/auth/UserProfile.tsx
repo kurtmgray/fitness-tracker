@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { LogOut, ChevronUp } from 'lucide-react';
+import { LogOut } from 'lucide-react';
 import { useAuth } from './AuthProvider';
 
 export function UserProfile() {
@@ -29,12 +29,6 @@ export function UserProfile() {
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           className="flex flex-col items-center space-y-2 px-4 py-3 rounded-xl transition-all duration-200 text-[#2C2C2C] hover:bg-[#F0E6D6] w-full"
         >
-          <ChevronUp
-            size={16}
-            className={`transition-transform duration-200 ${
-              isDropdownOpen ? 'rotate-180' : ''
-            }`}
-          />
           <div className="relative">
             {avatarSrc ? (
               <img

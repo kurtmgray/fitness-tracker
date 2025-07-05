@@ -32,7 +32,25 @@ export const useWorkoutHistoryData = () => {
     setExpandedWorkouts(newExpanded);
   };
 
-  const parseWeight = (weight: number | string): number => {
+  const parseWeight = (set: any): number => {
+    // Handle new equipment structure
+    if (set.equipment) {
+      // Bodyweight exercises
+      if (set.equipment.type === 'bodyweight') {
+        return 185; // Estimate bodyweight for volume calculation
+      }
+      
+      // Dumbbell exercises - multiply by 2 if per_hand
+      if (set.equipment.type === 'dumbbell' && set.equipment.modifier === 'per_hand') {
+        return (set.weight || 0) * 2;
+      }
+      
+      // All other equipment types
+      return set.weight || 0;
+    }
+    
+    // Legacy handling for old data format
+    const weight = set.weight || set;
     if (typeof weight === 'number') return weight;
     if (typeof weight === 'string') {
       // Handle bodyweight exercises
@@ -55,7 +73,7 @@ export const useWorkoutHistoryData = () => {
           return (
             exerciseSum +
             exercise.sets.reduce((setSum, set) => {
-              const weight = parseWeight(set.weight);
+              const weight = parseWeight(set);
               return setSum + weight * set.reps;
             }, 0)
           );
@@ -74,7 +92,7 @@ export const useWorkoutHistoryData = () => {
       return (
         sum +
         exercise.sets.reduce((setSum, set) => {
-          const weight = parseWeight(set.weight);
+          const weight = parseWeight(set);
           return setSum + weight * set.reps;
         }, 0)
       );
