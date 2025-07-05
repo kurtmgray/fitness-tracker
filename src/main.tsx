@@ -7,6 +7,7 @@ import {
   createRoute,
   createRouter,
 } from '@tanstack/react-router';
+import { QueryClientProvider } from '@tanstack/react-query';
 // import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 
 import './styles.css';
@@ -16,13 +17,18 @@ import Dashboard from './components/Dashboard';
 import WorkoutTracker from './components/workout-tracker/WorkoutTracker';
 import StrengthAssessment from './components/strength/StrengthAssessment';
 import WorkoutHistory from './components/workout-history/WorkoutHistory';
+import { AuthProvider } from './components/auth/AuthProvider';
+import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import { trpc, trpcClient, queryClient } from './lib/trpc';
 
 const rootRoute = createRootRoute({
   component: () => (
-    <Layout>
-      <Outlet />
-      {/* <TanStackRouterDevtools /> */}
-    </Layout>
+    <ProtectedRoute>
+      <Layout>
+        <Outlet />
+        {/* <TanStackRouterDevtools /> */}
+      </Layout>
+    </ProtectedRoute>
   ),
 });
 
@@ -77,7 +83,13 @@ if (rootElement && !rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement);
   root.render(
     <StrictMode>
-      <RouterProvider router={router} />
+      <trpc.Provider client={trpcClient} queryClient={queryClient}>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <RouterProvider router={router} />
+          </AuthProvider>
+        </QueryClientProvider>
+      </trpc.Provider>
     </StrictMode>
   );
 }

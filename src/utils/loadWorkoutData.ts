@@ -1,20 +1,12 @@
-import workoutData from '../data/workoutData.json';
+import { reorganizeWorkoutsByDate } from './reorganizeWorkouts';
 
 export const loadWorkoutDataToLocalStorage = (): WeekData[] | null => {
   try {
-    // Convert date strings back to Date objects and ensure proper typing
-    const processedData: WeekData[] = workoutData.map(week => ({
-      ...week,
-      weekStartDate: new Date(week.weekStartDate),
-      workouts: week.workouts.map(workout => ({
-        ...workout,
-        date: new Date(workout.date),
-        day: workout.day as WorkoutDay // Type assertion to match interface
-      }))
-    }));
+    // Reorganize workouts by their actual dates into correct weeks
+    const processedData = reorganizeWorkoutsByDate();
 
     localStorage.setItem('workoutHistory', JSON.stringify(processedData));
-    console.log(`Loaded ${processedData.length} weeks of workout data to localStorage`);
+    console.log(`Loaded ${processedData.length} weeks of properly organized workout data to localStorage`);
     
     return processedData;
   } catch (error) {

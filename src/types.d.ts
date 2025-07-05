@@ -1,11 +1,11 @@
 
- type WorkoutDay = 'day1' | 'day2' | 'day3';
+type WorkoutDay = 'day1' | 'day2' | 'day3';
 
 interface SetEntry {
-  weight: number | string;
+  weight: number | string; // "BW", "44# KB"
   reps: number;
   completed: boolean;
-  rpe?: number;
+  rpe?: number; // 1-10 
 }
 
 interface ExerciseEntry {
@@ -16,16 +16,16 @@ interface ExerciseEntry {
   notes?: string;
 }
 
- interface WorkoutSession {
+interface WorkoutSession {
   id: string;
   date: Date;
   day: WorkoutDay;
   exercises: ExerciseEntry[];
-  duration?: number;
+  duration?: number; // minutes
   notes?: string;
 }
 
- interface WeekData {
+interface WeekData {
   weekStartDate: Date;
   workouts: WorkoutSession[];
 }
@@ -41,21 +41,6 @@ interface ExerciseTemplate {
   notes?: string;
 }
 
-interface SetEntry {
-  weight: number | string;
-  reps: number;
-  completed: boolean;
-  rpe?: number;
-}
-
-interface ExerciseEntry {
-  exerciseName: string;
-  sets: SetEntry[];
-  useBosoBall?: boolean;
-  bandType?: string;
-  notes?: string;
-}
-
 interface Suggestion {
   suggestedWeight: number;
   lastWeight: number;
@@ -63,3 +48,37 @@ interface Suggestion {
 }
 
 type WorkoutPhase = 'selection' | 'setup' | 'tracking' | 'complete';
+
+interface DbWorkoutSession {
+  id: string;
+  user_id: string;
+  template_id?: string;
+  date: string; // ISO date string
+  day_type: string;
+  duration_minutes?: number;
+  notes?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+interface DbSessionExercise {
+  id: string;
+  session_id: string;
+  exercise_id: string;
+  order_index: number;
+  use_bosu_ball: boolean;
+  band_type?: string;
+  notes?: string;
+  created_at: string;
+}
+
+interface DbSessionSet {
+  id: string;
+  session_exercise_id: string;
+  set_number: number;
+  weight?: number; // Decimal in DB
+  reps: number;
+  rpe?: number;
+  completed: boolean;
+  created_at: string;
+}

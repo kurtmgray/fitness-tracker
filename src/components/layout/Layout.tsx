@@ -14,7 +14,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <div className="flex flex-col md:flex-row min-h-screen">
         {/* desktop nav */}
         <div className="hidden md:block w-64 p-4">
-          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6 sticky top-4 h-[calc(100vh-2rem)]">
+          <div className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6 sticky top-4 h-[calc(100vh-2rem)] flex flex-col">
             <div className="mb-8">
               <div className="flex flex-col items-center mb-4">
                 <img
@@ -32,7 +32,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </div>
               </div>
             </div>
-            <Navigation />
+            <div className="flex-1">
+              <Navigation className="h-full" />
+            </div>
 
             {/* Timer Toggle Button at bottom of nav */}
             {/* <div className="mt-auto pt-4 border-t border-[#E8D7C3]">
@@ -65,7 +67,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
 
           {/* mobile nav */}
-          <div className="md:hidden fixed bottom-0 left-0 right-0 z-50">
+          <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 safe-area-inset-bottom">
             <Navigation />
           </div>
         </div>
