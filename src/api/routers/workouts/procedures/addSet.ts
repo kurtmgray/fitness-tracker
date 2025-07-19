@@ -5,8 +5,12 @@ export const addSetToExercise = protectedProcedure
   .input(z.object({
     sessionExerciseId: z.string(),
     setNumber: z.number(),
-    reps: z.number(),
-    weight: z.number().optional(),
+    reps: z.number().optional(),
+    weight: z.number().nullable().optional(),
+    weightLeft: z.number().nullable().optional(),
+    weightRight: z.number().nullable().optional(),
+    timeSeconds: z.number().optional(),
+    isFailure: z.boolean().optional(),
     rpe: z.number().min(1).max(10).optional(),
     completed: z.boolean().optional(),
   }))
@@ -24,13 +28,23 @@ export const addSetToExercise = protectedProcedure
       throw new Error('Session exercise not found');
     }
 
+    // Calculate total weight if dual weights provided
+    const totalWeight = input.weightLeft && input.weightRight 
+      ? input.weightLeft + input.weightRight 
+      : input.weight;
+
     const set = await ctx.db
       .insertInto('session_sets')
       .values({
         session_exercise_id: input.sessionExerciseId,
         set_number: input.setNumber,
-        reps: input.reps,
+        reps: input.reps ?? 0,
         weight: input.weight || null,
+        weight_left: input.weightLeft || null,
+        weight_right: input.weightRight || null,
+        total_weight: totalWeight || null,
+        time_seconds: input.timeSeconds || null,
+        is_failure: input.isFailure || false,
         rpe: input.rpe || null,
         completed: input.completed || false,
       })

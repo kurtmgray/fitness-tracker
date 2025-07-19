@@ -1,5 +1,10 @@
 import React from 'react';
 import { ArrowLeft, CheckCircle } from 'lucide-react';
+import { supportsDualWeights, isBodyweightExercise, getExerciseTrackingType } from '@/utils/exerciseUtils';
+import DualWeightInput from '@/components/shared/DualWeightInput';
+import TimeInput from '@/components/shared/TimeInput';
+import WeightDisplay from '@/components/shared/WeightDisplay';
+import TimeDisplay from '@/components/shared/TimeDisplay';
 
 interface WorkoutTrackingProps {
   currentSession: WorkoutSession;
@@ -8,7 +13,15 @@ interface WorkoutTrackingProps {
   workoutTemplates: Record<WorkoutDay, ExerciseTemplate[]>;
   selectedDay: WorkoutDay;
   onUpdateSession: (session: WorkoutSession) => void;
-  onCompleteSet: (weight: number, reps: number, rpe?: number) => void;
+  onCompleteSet: (setData: {
+    weight?: number;
+    weightLeft?: number;
+    weightRight?: number;
+    reps?: number;
+    timeSeconds?: number;
+    isFailure?: boolean;
+    rpe?: number;
+  }) => void;
   onGoBack: () => void;
   onSetCurrentExerciseIndex: (index: number) => void;
 }
@@ -30,6 +43,12 @@ const WorkoutTracking: React.FC<WorkoutTrackingProps> = ({
   const template = workoutTemplates[selectedDay][currentExerciseIndex];
 
   const isCurrentExerciseComplete = currentSetForExercise >= currentExercise.sets.length;
+  const exerciseName = currentExercise.exerciseName;
+  const trackingType = getExerciseTrackingType(exerciseName);
+  const isDualWeight = supportsDualWeights(exerciseName);
+  const isBodyweight = isBodyweightExercise(exerciseName);
+  const isTimeBased = trackingType === 'time';
+  const isFailureBased = trackingType === 'failure';
 
   return (
     <div className="space-y-6">
@@ -110,65 +129,137 @@ const WorkoutTracking: React.FC<WorkoutTrackingProps> = ({
         <div className="bg-gradient-to-r from-[#FAF7F2] to-[#F0E6D6] rounded-2xl p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-[#2C2C2C] mb-2">
-                  Weight (lbs)
-                </label>
-                <input
-                  type="number"
-                  value={currentSet.weight}
-                  onChange={(e) => {
-                    const updatedSession = { ...currentSession };
-                    updatedSession.exercises[currentExerciseIndex].sets[currentSetForExercise].weight = Number(e.target.value);
-                    onUpdateSession(updatedSession);
-                  }}
-                  className="w-full px-4 py-3 text-xl text-center border border-[#E8D7C3] rounded-lg focus:ring-2 focus:ring-[#8B9A5B] focus:border-transparent"
-                  min="0"
-                  step="2.5"
-                />
-                <div className="flex justify-center space-x-2 mt-2">
-                  <button
-                    onClick={() => {
-                      const updatedSession = { ...currentSession };
-                      updatedSession.exercises[currentExerciseIndex].sets[currentSetForExercise].weight = Number(currentSet.weight) - 2.5;
-                      onUpdateSession(updatedSession);
-                    }}
-                    className="px-3 py-1 bg-[#2C2C2C]/10 text-[#2C2C2C] rounded font-medium hover:bg-[#2C2C2C]/20"
-                  >
-                    -2.5
-                  </button>
-                  <button
-                    onClick={() => {
-                      const updatedSession = { ...currentSession };
-                      updatedSession.exercises[currentExerciseIndex].sets[currentSetForExercise].weight = Number(currentSet.weight) + 2.5;
-                      onUpdateSession(updatedSession);
-                    }}
-                    className="px-3 py-1 bg-[#8B9A5B]/20 text-[#6B7A4B] rounded font-medium hover:bg-[#8B9A5B]/30"
-                  >
-                    +2.5
-                  </button>
+              {/* Weight Input Section */}
+              {!isBodyweight && (
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-sm font-medium text-[#2C2C2C]">
+                      {isDualWeight ? 'Weight (Left & Right)' : 'Weight'}
+                    </label>
+                    <WeightDisplay
+                      exerciseName={exerciseName}
+                      weight={currentSet.weight}
+                      weightLeft={currentSet.weightLeft}
+                      weightRight={currentSet.weightRight}
+                      className="text-xs text-[#8B9A5B]"
+                    />
+                  </div>
+                  
+                  {isDualWeight ? (
+                    <DualWeightInput
+                      exerciseName={exerciseName}
+                      weightLeft={currentSet.weightLeft || null}
+                      weightRight={currentSet.weightRight || null}
+                      onChange={(left, right) => {
+                        const updatedSession = { ...currentSession };
+                        updatedSession.exercises[currentExerciseIndex].sets[currentSetForExercise].weightLeft = left;
+                        updatedSession.exercises[currentExerciseIndex].sets[currentSetForExercise].weightRight = right;
+                        onUpdateSession(updatedSession);
+                      }}
+                    />
+                  ) : (
+                    <div>
+                      <input
+                        type="number"
+                        value={currentSet.weight || ''}
+                        onChange={(e) => {
+                          const updatedSession = { ...currentSession };
+                          updatedSession.exercises[currentExerciseIndex].sets[currentSetForExercise].weight = e.target.value ? Number(e.target.value) : null;
+                          onUpdateSession(updatedSession);
+                        }}
+                        placeholder="Weight"
+                        className="w-full px-4 py-3 text-xl text-center border border-[#E8D7C3] rounded-lg focus:ring-2 focus:ring-[#8B9A5B] focus:border-transparent"
+                        min="0"
+                        step="2.5"
+                      />
+                      <div className="flex justify-center space-x-2 mt-2">
+                        <button
+                          onClick={() => {
+                            const updatedSession = { ...currentSession };
+                            const currentWeight = typeof currentSet.weight === 'number' ? currentSet.weight : 0;
+                            updatedSession.exercises[currentExerciseIndex].sets[currentSetForExercise].weight = Math.max(0, currentWeight - 2.5);
+                            onUpdateSession(updatedSession);
+                          }}
+                          className="px-3 py-1 bg-[#2C2C2C]/10 text-[#2C2C2C] rounded font-medium hover:bg-[#2C2C2C]/20"
+                        >
+                          -2.5
+                        </button>
+                        <button
+                          onClick={() => {
+                            const updatedSession = { ...currentSession };
+                            const currentWeight = typeof currentSet.weight === 'number' ? currentSet.weight : 0;
+                            updatedSession.exercises[currentExerciseIndex].sets[currentSetForExercise].weight = currentWeight + 2.5;
+                            onUpdateSession(updatedSession);
+                          }}
+                          className="px-3 py-1 bg-[#8B9A5B]/20 text-[#6B7A4B] rounded font-medium hover:bg-[#8B9A5B]/30"
+                        >
+                          +2.5
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
+              )}
 
-              <div>
-                <label className="block text-sm font-medium text-[#2C2C2C] mb-2">
-                  Reps{' '}
-                  {template.isFailure
-                    ? '(to failure)'
-                    : `(target: ${template.reps})`}
-                </label>
-                <input
-                  type="number"
-                  value={currentSet.reps}
-                  onChange={(e) => {
-                    const updatedSession = { ...currentSession };
-                    updatedSession.exercises[currentExerciseIndex].sets[currentSetForExercise].reps = Number(e.target.value);
-                    onUpdateSession(updatedSession);
-                  }}
-                  className="w-full px-4 py-3 text-xl text-center border border-[#E8D7C3] rounded-lg focus:ring-2 focus:ring-[#8B9A5B] focus:border-transparent"
-                  min="0"
-                />
-              </div>
+              {/* Reps/Time Input Section */}
+              {isTimeBased ? (
+                <div>
+                  <label className="block text-sm font-medium text-[#2C2C2C] mb-2">
+                    Time {template.reps && `(target: ${template.reps}s)`}
+                  </label>
+                  <TimeInput
+                    seconds={currentSet.timeSeconds || null}
+                    onChange={(seconds) => {
+                      const updatedSession = { ...currentSession };
+                      updatedSession.exercises[currentExerciseIndex].sets[currentSetForExercise].timeSeconds = seconds;
+                      onUpdateSession(updatedSession);
+                    }}
+                    placeholder="2:00"
+                  />
+                </div>
+              ) : (
+                <div>
+                  <label className="block text-sm font-medium text-[#2C2C2C] mb-2">
+                    {isFailureBased ? 'Reps (to failure)' : `Reps ${template.reps ? `(target: ${template.reps})` : ''}`}
+                  </label>
+                  <input
+                    type="number"
+                    value={currentSet.reps || ''}
+                    onChange={(e) => {
+                      const updatedSession = { ...currentSession };
+                      updatedSession.exercises[currentExerciseIndex].sets[currentSetForExercise].reps = e.target.value ? Number(e.target.value) : 0;
+                      onUpdateSession(updatedSession);
+                    }}
+                    placeholder="Reps"
+                    className="w-full px-4 py-3 text-xl text-center border border-[#E8D7C3] rounded-lg focus:ring-2 focus:ring-[#8B9A5B] focus:border-transparent"
+                    min="0"
+                  />
+                  {isFailureBased && (
+                    <div className="text-xs text-[#2C2C2C]/60 mt-1">
+                      Enter the reps you achieved when going to failure
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Failure Toggle for Failure-Based Exercises */}
+              {isFailureBased && (
+                <div>
+                  <label className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={currentSet.isFailure || false}
+                      onChange={(e) => {
+                        const updatedSession = { ...currentSession };
+                        updatedSession.exercises[currentExerciseIndex].sets[currentSetForExercise].isFailure = e.target.checked;
+                        onUpdateSession(updatedSession);
+                      }}
+                      className="rounded border-[#E8D7C3] text-[#8B9A5B] focus:ring-[#8B9A5B]"
+                    />
+                    <span className="text-sm text-[#2C2C2C]">Went to failure</span>
+                  </label>
+                </div>
+              )}
             </div>
 
             <div className="space-y-4">
@@ -211,7 +302,20 @@ const WorkoutTracking: React.FC<WorkoutTrackingProps> = ({
                       <div className="font-medium">Set {idx + 1}</div>
                       {set.completed && (
                         <div className="text-xs">
-                          {set.weight} × {set.reps}
+                          {isTimeBased ? (
+                            <TimeDisplay seconds={set.timeSeconds} />
+                          ) : (
+                            <>
+                              <WeightDisplay
+                                exerciseName={exerciseName}
+                                weight={set.weight}
+                                weightLeft={set.weightLeft}
+                                weightRight={set.weightRight}
+                              />
+                              <br />
+                              {set.reps} reps
+                            </>
+                          )}
                         </div>
                       )}
                     </div>
@@ -223,16 +327,35 @@ const WorkoutTracking: React.FC<WorkoutTrackingProps> = ({
 
           <div className="text-center mt-6">
             <button
-              onClick={() =>
-                onCompleteSet(
-                  Number(currentSet.weight),
-                  Number(currentSet.reps),
-                  currentSet.rpe
-                )
-              }
+              onClick={() => {
+                const setData: any = {
+                  rpe: currentSet.rpe
+                };
+
+                if (isTimeBased) {
+                  setData.timeSeconds = Number(currentSet.timeSeconds || 0);
+                } else {
+                  setData.reps = Number(currentSet.reps || 0);
+                }
+
+                if (isFailureBased) {
+                  setData.isFailure = currentSet.isFailure || false;
+                }
+
+                if (!isBodyweight) {
+                  if (isDualWeight) {
+                    setData.weightLeft = Number(currentSet.weightLeft || 0);
+                    setData.weightRight = Number(currentSet.weightRight || 0);
+                  } else {
+                    setData.weight = Number(currentSet.weight || 0);
+                  }
+                }
+
+                onCompleteSet(setData);
+              }}
               className="bg-gradient-to-r from-[#8B9A5B] to-[#6B7A4B] hover:from-[#6B7A4B] hover:to-[#5A6940] text-white font-semibold py-4 px-8 rounded-xl shadow-medium hover:shadow-strong transition-all duration-300 transform hover:scale-105"
             >
-              <CheckCircle className="w-5 h-5 mr-2" />
+              <CheckCircle className="w-5 h-5 mr-2 inline" />
               Complete Set
             </button>
           </div>

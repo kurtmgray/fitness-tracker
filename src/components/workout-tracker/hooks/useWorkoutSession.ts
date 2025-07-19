@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useWorkoutHistory } from './useWorkoutHistory';
 import { useWorkoutSuggestions } from './useWorkoutSuggestions';
+import { supportsDualWeights } from '../../../utils/exerciseUtils';
 
 const workoutTemplates: Record<WorkoutDay, ExerciseTemplate[]> = {
   day1: [
@@ -55,7 +56,7 @@ const workoutTemplates: Record<WorkoutDay, ExerciseTemplate[]> = {
     {
       name: "Farmer's Carry",
       sets: 3,
-      reps: '40 yards',
+      reps: '30 seconds',
       weightType: 'kettlebell',
       isTimeBased: true,
     },
@@ -124,14 +125,18 @@ export const useWorkoutSession = () => {
     const lastWorkout = getLastWorkout(day);
 
     const exercises: ExerciseEntry[] = template.map((exercise) => {
-      const suggestedWeight = getSuggestedWeight(exercise, lastWorkout);
+      const suggestedWeight = getSuggestedWeight(exercise, lastWorkout, workoutHistory);
 
+      const isDualWeight = supportsDualWeights(exercise.name);
+      
       return {
         exerciseName: exercise.name,
         sets: Array(exercise.sets)
           .fill(null)
           .map(() => ({
-            weight: suggestedWeight,
+            weight: isDualWeight ? null : suggestedWeight,
+            weightLeft: isDualWeight ? suggestedWeight : undefined,
+            weightRight: isDualWeight ? suggestedWeight : undefined,
             reps: parseInt(exercise.reps.split('-')[0]) || 8,
             completed: false,
             rpe: undefined,

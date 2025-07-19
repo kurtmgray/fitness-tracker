@@ -14,3 +14,5 @@ database-scripts.sql
 trpc-router-structure.ts
 backend-setup.json
 backend-setup-guide.md
+FITNESS_TRACKER_SPEC.md
+*.md

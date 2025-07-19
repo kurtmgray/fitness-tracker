@@ -1,11 +1,8 @@
-import { useState, useMemo } from 'react';
-import { generateMockData } from '../../../utils/workoutMocks';
+import { useState } from 'react';
 
 export const useWorkoutHistory = () => {
-  const mockData = useMemo(() => generateMockData(), []);
-  const [workoutHistory, setWorkoutHistory] = useState<WorkoutSession[]>(
-    mockData.flatMap((week) => week.workouts)
-  );
+  // TODO: Replace with real tRPC data fetching
+  const [workoutHistory, setWorkoutHistory] = useState<WorkoutSession[]>([]);
 
   const getLastWorkout = (day: WorkoutDay): WorkoutSession | null => {
     return (

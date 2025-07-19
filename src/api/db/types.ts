@@ -25,14 +25,84 @@ export type Numeric = ColumnType<string, number | string, number | string>;
 
 export type Timestamp = ColumnType<Date, Date | string, Date | string>;
 
-export interface Exercises {
+export interface BandConfigurations {
+  colors: string[];
   created_at: Generated<Timestamp | null>;
+  id: Generated<string>;
+  is_default: Generated<boolean | null>;
+  name: string;
+  user_id: string;
+}
+
+export interface EquipmentInstances {
+  created_at: Generated<Timestamp | null>;
+  equipment_type_id: string;
+  id: Generated<string>;
+  is_available: Generated<boolean | null>;
+  name: string;
+  /**
+   * JSON specs for this instance: weight, resistanceLevel, condition, location, etc.
+   */
+  specifications: Json | null;
+  updated_at: Generated<Timestamp | null>;
+  /**
+   * NULL for gym equipment, UUID for user-owned equipment
+   */
+  user_id: string | null;
+}
+
+export interface EquipmentTypes {
+  category: string;
+  created_at: Generated<Timestamp | null>;
+  description: string | null;
+  id: Generated<string>;
+  name: string;
+  /**
+   * JSON specifications: weightRange {min, max}, fixedWeight, resistanceLevels[], bandColors[]
+   */
+  specifications: Json | null;
+  /**
+   * Whether this equipment type can have different weights per hand (dumbbells, kettlebells)
+   */
+  supports_dual_weights: Generated<boolean | null>;
+  /**
+   * Whether resistance varies through range of motion (bands, cables)
+   */
+  supports_variable_resistance: Generated<boolean | null>;
+  updated_at: Generated<Timestamp | null>;
+}
+
+export interface EquipmentWithTypes {
+  category: string | null;
+  instance_id: string | null;
+  instance_name: string | null;
+  instance_specs: Json | null;
+  is_available: boolean | null;
+  supports_dual_weights: boolean | null;
+  supports_variable_resistance: boolean | null;
+  type_id: string | null;
+  type_name: string | null;
+  type_specs: Json | null;
+  user_id: string | null;
+}
+
+export interface Exercises {
+  abbreviation: string | null;
+  alternative_equipment: string[] | null;
+  alternative_equipment_type_ids: string[] | null;
+  created_at: Generated<Timestamp | null>;
+  default_equipment: string | null;
   equipment: string[] | null;
+  has_bosu_option: Generated<boolean | null>;
   id: Generated<string>;
   instructions: string | null;
   is_active: Generated<boolean | null>;
   muscle_groups: string[] | null;
   name: string;
+  primary_equipment_type_id: string | null;
+  supports_dual_weights: Generated<boolean | null>;
+  tracking_type: Generated<string | null>;
+  weight_multiplier: Generated<number | null>;
   weight_type: string;
 }
 
@@ -51,11 +121,34 @@ export interface SessionSets {
   completed: Generated<boolean | null>;
   created_at: Generated<Timestamp | null>;
   id: Generated<string>;
+  /**
+   * Flag indicating if this set was performed to failure
+   */
+  is_failure: Generated<boolean | null>;
   reps: number;
   rpe: number | null;
   session_exercise_id: string;
   set_number: number;
+  /**
+   * Time duration for time-based exercises (stored as seconds)
+   */
+  time_seconds: number | null;
+  /**
+   * Calculated total weight: weight OR (weight_left + weight_right)
+   */
+  total_weight: Numeric | null;
+  /**
+   * Primary weight for symmetric exercises (both hands same weight)
+   */
   weight: Numeric | null;
+  /**
+   * Left hand weight for dual-weight exercises
+   */
+  weight_left: Numeric | null;
+  /**
+   * Right hand weight for dual-weight exercises
+   */
+  weight_right: Numeric | null;
 }
 
 export interface StrengthAssessments {
@@ -120,6 +213,23 @@ export interface Users {
   updated_at: Generated<Timestamp | null>;
 }
 
+export interface WorkoutEquipmentPreferences {
+  created_at: Generated<Timestamp | null>;
+  equipment_type: string;
+  exercise_id: string;
+  id: Generated<string>;
+  session_id: string;
+}
+
+export interface WorkoutEquipmentPreferencesNew {
+  created_at: Generated<Timestamp | null>;
+  equipment_instance_id: string | null;
+  equipment_type_id: string;
+  exercise_id: string;
+  id: Generated<string>;
+  session_id: string;
+}
+
 export interface WorkoutSessions {
   created_at: Generated<Timestamp | null>;
   date: Timestamp;
@@ -144,6 +254,10 @@ export interface WorkoutTemplates {
 }
 
 export interface DB {
+  band_configurations: BandConfigurations;
+  equipment_instances: EquipmentInstances;
+  equipment_types: EquipmentTypes;
+  equipment_with_types: EquipmentWithTypes;
   exercises: Exercises;
   session_exercises: SessionExercises;
   session_sets: SessionSets;
@@ -152,6 +266,8 @@ export interface DB {
   user_exercise_preferences: UserExercisePreferences;
   user_preferences: UserPreferences;
   users: Users;
+  workout_equipment_preferences: WorkoutEquipmentPreferences;
+  workout_equipment_preferences_new: WorkoutEquipmentPreferencesNew;
   workout_sessions: WorkoutSessions;
   workout_templates: WorkoutTemplates;
 }

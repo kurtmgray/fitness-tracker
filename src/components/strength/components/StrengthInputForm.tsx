@@ -75,6 +75,13 @@ const StrengthInputForm: React.FC<StrengthInputFormProps> = ({
         </div>
       </div>
 
+      <div className="bg-[#F0E6D6]/50 rounded-lg p-3 mb-4">
+        <p className="text-sm text-[#2C2C2C]/70">
+          <strong>Equipment Note:</strong> Enter your best weight for each movement. For dumbbell exercises, 
+          enter the total weight used (e.g., if using 50lb dumbbells, enter 100lbs for total).
+        </p>
+      </div>
+
       <div className="space-y-3">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="flex-1">

@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { generateMockData } from '../../../utils/workoutMocks';
+import { calculateTotalWeight, getExerciseTrackingType } from '@/utils/exerciseUtils';
+import { calculateTimeVolume } from '@/utils/timeUtils';
 
 export const useWorkoutHistoryData = () => {
-  const [mockData] = useState<WeekData[]>(generateMockData());
+  // TODO: Replace with real tRPC data fetching
+  const [mockData] = useState<WeekData[]>([]);
   const [expandedWeeks, setExpandedWeeks] = useState<Set<string>>(new Set());
   const [expandedWorkouts, setExpandedWorkouts] = useState<Set<string>>(new Set());
 
@@ -32,36 +34,30 @@ export const useWorkoutHistoryData = () => {
     setExpandedWorkouts(newExpanded);
   };
 
-  const parseWeight = (set: any): number => {
-    // Handle new equipment structure
-    if (set.equipment) {
-      // Bodyweight exercises
-      if (set.equipment.type === 'bodyweight') {
-        return 185; // Estimate bodyweight for volume calculation
-      }
-      
-      // Dumbbell exercises - multiply by 2 if per_hand
-      if (set.equipment.type === 'dumbbell' && set.equipment.modifier === 'per_hand') {
-        return (set.weight || 0) * 2;
-      }
-      
-      // All other equipment types
-      return set.weight || 0;
+  // Calculate volume using new data model
+  const calculateVolume = (set: any, exerciseName?: string): number => {
+    if (!exerciseName) return 0;
+    
+    const trackingType = getExerciseTrackingType(exerciseName);
+    
+    if (trackingType === 'time') {
+      return calculateTimeVolume(
+        exerciseName,
+        set.timeSeconds || set.time_seconds || 0,
+        set.weight,
+        set.weightLeft || set.weight_left,
+        set.weightRight || set.weight_right
+      );
     }
     
-    // Legacy handling for old data format
-    const weight = set.weight || set;
-    if (typeof weight === 'number') return weight;
-    if (typeof weight === 'string') {
-      // Handle bodyweight exercises
-      if (weight.toLowerCase().includes('bw') || weight.toLowerCase().includes('bodyweight')) {
-        return 185; // Estimate bodyweight for volume calculation
-      }
-      // Extract numeric value from strings like "44# KB", "Red Band", etc.
-      const numericMatch = weight.match(/(\d+(?:\.\d+)?)/);
-      return numericMatch ? parseFloat(numericMatch[1]) : 0;
-    }
-    return 0;
+    const weight = calculateTotalWeight(
+      exerciseName,
+      set.weight,
+      set.weightLeft || set.weight_left,
+      set.weightRight || set.weight_right
+    );
+    
+    return weight * (set.reps || 0);
   };
 
   const getWeekStats = (workouts: WorkoutSession[]) => {
@@ -73,8 +69,7 @@ export const useWorkoutHistoryData = () => {
           return (
             exerciseSum +
             exercise.sets.reduce((setSum, set) => {
-              const weight = parseWeight(set);
-              return setSum + weight * set.reps;
+              return setSum + calculateVolume(set, exercise.exerciseName);
             }, 0)
           );
         }, 0)
@@ -92,8 +87,7 @@ export const useWorkoutHistoryData = () => {
       return (
         sum +
         exercise.sets.reduce((setSum, set) => {
-          const weight = parseWeight(set);
-          return setSum + weight * set.reps;
+          return setSum + calculateVolume(set, exercise.exerciseName);
         }, 0)
       );
     }, 0);

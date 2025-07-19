@@ -13,6 +13,10 @@ import { updateSet } from "./procedures/updateSet";
 import { deleteSet } from "./procedures/deleteSet";
 import { getUserWorkoutSessions } from "./procedures/getUserSessions";
 import { getWorkoutSessionStats } from "./procedures/getSessionStats";
+import { setEquipmentPreference } from "./procedures/setEquipmentPreference";
+import { getEquipmentPreferences } from "./procedures/getEquipmentPreferences";
+import { getBandConfigurations } from "./procedures/getBandConfigurations";
+import { createBandConfiguration } from "./procedures/createBandConfiguration";
 
 export const workoutsRouter = router({
   // Legacy procedures (keep for compatibility)
@@ -36,4 +40,12 @@ export const workoutsRouter = router({
   addSet: addSetToExercise,
   updateSet: updateSet,
   deleteSet: deleteSet,
+  
+  // Equipment preferences
+  setEquipmentPreference: setEquipmentPreference,
+  getEquipmentPreferences: getEquipmentPreferences,
+  
+  // Band configurations
+  getBandConfigurations: getBandConfigurations,
+  createBandConfiguration: createBandConfiguration,
 });

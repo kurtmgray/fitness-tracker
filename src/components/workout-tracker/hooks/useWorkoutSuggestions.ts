@@ -38,33 +38,57 @@ export const useWorkoutSuggestions = () => {
 
   const getSuggestedWeight = (
     exercise: ExerciseTemplate,
-    lastWorkout: WorkoutSession | null
+    lastWorkout: WorkoutSession | null,
+    allWorkoutHistory?: WorkoutSession[]
   ): number => {
-    if (!lastWorkout) return 0;
+    // First check the last workout for this day
+    if (lastWorkout) {
+      const lastExercise = lastWorkout.exercises.find(
+        (ex) => ex.exerciseName === exercise.name
+      );
 
-    const lastExercise = lastWorkout.exercises.find(
-      (ex) => ex.exerciseName === exercise.name
-    );
-
-    if (!lastExercise) return 0;
-
-    const completedSets = lastExercise.sets.filter(
-      (s) => s.completed && typeof s.weight === 'number'
-    );
-    
-    if (completedSets.length === 0) {
-      return lastExercise.sets[0]?.weight as number ?? 0;
+      if (lastExercise) {
+        const completedSets = lastExercise.sets.filter(
+          (s) => s.completed && typeof s.weight === 'number'
+        );
+        
+        if (completedSets.length > 0) {
+          const avgRpe =
+            completedSets.reduce((sum, s) => sum + (s.rpe ?? 8), 0) /
+            completedSets.length;
+          
+          return suggestNextWeight(
+            Number(completedSets[0].weight),
+            avgRpe,
+            exercise.weightType
+          );
+        }
+      }
     }
 
-    const avgRpe =
-      completedSets.reduce((sum, s) => sum + (s.rpe ?? 8), 0) /
-      completedSets.length;
-    
-    return suggestNextWeight(
-      Number(completedSets[0].weight),
-      avgRpe,
-      exercise.weightType
-    );
+    // If not found in last workout, search ALL workout history
+    if (allWorkoutHistory) {
+      // Search from most recent to oldest
+      for (const workout of allWorkoutHistory) {
+        const exerciseMatch = workout.exercises.find(
+          (ex) => ex.exerciseName === exercise.name
+        );
+        
+        if (exerciseMatch) {
+          const completedSets = exerciseMatch.sets.filter(
+            (s) => s.completed && typeof s.weight === 'number'
+          );
+          
+          if (completedSets.length > 0) {
+            // Return the last used weight (no progression since it's old)
+            return Number(completedSets[0].weight);
+          }
+        }
+      }
+    }
+
+    // No previous data found, return 0 (user will input weight)
+    return 0;
   };
 
   return {

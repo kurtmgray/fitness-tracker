@@ -1,4 +1,8 @@
 import React from 'react';
+import { calculateTotalWeight, getExerciseTrackingType } from '@/utils/exerciseUtils';
+import { calculateTimeVolume } from '@/utils/timeUtils';
+import WeightDisplay from '@/components/shared/WeightDisplay';
+import TimeDisplay from '@/components/shared/TimeDisplay';
 
 interface ExerciseDetailProps {
   exercise: ExerciseEntry;
@@ -26,11 +30,28 @@ const ExerciseDetail: React.FC<ExerciseDetailProps> = ({ exercise }) => {
         <div className="text-right text-sm text-2C2C2C/60">
           <div>{exercise.sets.length} sets</div>
           <div>
-            {exercise.sets.reduce(
-              (sum, set) => sum + Number(set.weight) * set.reps,
-              0
-            )}{' '}
-            lbs
+            {exercise.sets.reduce((sum, set) => {
+              const trackingType = getExerciseTrackingType(exercise.exerciseName);
+              
+              if (trackingType === 'time') {
+                return sum + calculateTimeVolume(
+                  exercise.exerciseName,
+                  set.timeSeconds || 0,
+                  set.weight,
+                  set.weightLeft,
+                  set.weightRight
+                );
+              } else {
+                const weight = calculateTotalWeight(
+                  exercise.exerciseName,
+                  set.weight,
+                  set.weightLeft,
+                  set.weightRight
+                );
+                return sum + weight * (set.reps || 0);
+              }
+            }, 0)}{' '}
+            {getExerciseTrackingType(exercise.exerciseName) === 'time' ? 'lb-seconds' : 'lbs'} total
           </div>
         </div>
       </div>
@@ -42,8 +63,21 @@ const ExerciseDetail: React.FC<ExerciseDetailProps> = ({ exercise }) => {
             className="text-center p-2 bg-E8D7C3 rounded text-sm"
           >
             <div className="font-medium">Set {setIdx + 1}</div>
-            <div className="text-2C2C2C">
-              {set.weight}lbs × {set.reps}
+            <div className="text-2C2C2C text-xs">
+              {getExerciseTrackingType(exercise.exerciseName) === 'time' ? (
+                <TimeDisplay seconds={set.timeSeconds} />
+              ) : (
+                <>
+                  <WeightDisplay
+                    exerciseName={exercise.exerciseName}
+                    weight={set.weight}
+                    weightLeft={set.weightLeft}
+                    weightRight={set.weightRight}
+                  />
+                  {' '} × {set.reps || 0}
+                  {set.isFailure && ' (failure)'}
+                </>
+              )}
             </div>
             {set.rpe && (
               <div className="text-xs text-2C2C2C/60">RPE {set.rpe}</div>
