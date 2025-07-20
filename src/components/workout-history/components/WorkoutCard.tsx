@@ -28,7 +28,7 @@ const WorkoutCard: React.FC<WorkoutCardProps> = ({
           <div>
             <div className="flex items-center space-x-3">
               <h4 className="font-bold text-[#2C2C2C]">
-                Day {workout.day.slice(-1)}: {dayTitles[workout.day]}
+                Day {workout.day?.slice(-1) || '?'}: {dayTitles[workout.day] || 'Unknown'}
               </h4>
               <span className="text-sm text-[#2C2C2C]/60">
                 {workout.date.toLocaleDateString('en-US', {

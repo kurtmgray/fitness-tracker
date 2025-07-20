@@ -93,16 +93,19 @@ export const calculateTimeVolume = (
   weightLeft?: number | null,
   weightRight?: number | null
 ): number => {
-  // For time-based exercises, volume = time × total weight
+  // Convert seconds to minutes for volume calculation
+  const minutes = seconds / 60;
+  
+  // For time-based exercises, volume = time in minutes × total weight
   if (weightLeft !== undefined && weightRight !== undefined) {
     const totalWeight = (weightLeft || 0) + (weightRight || 0);
-    return seconds * totalWeight;
+    return minutes * totalWeight;
   }
   
   if (weight) {
-    return seconds * weight;
+    return minutes * weight;
   }
   
   // Bodyweight time exercises use estimated bodyweight
-  return seconds * 185;
+  return minutes * 185;
 };

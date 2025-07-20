@@ -13,6 +13,8 @@ interface StrengthInputFormProps {
   setBodyWeight: (weight: number) => void;
   weights: Weights;
   onWeightChange: (lift: LiftType, value: number) => void;
+  readOnly?: boolean;
+  dataSource?: 'manual' | 'workout_data';
 }
 
 const StrengthInputForm: React.FC<StrengthInputFormProps> = ({
@@ -22,6 +24,8 @@ const StrengthInputForm: React.FC<StrengthInputFormProps> = ({
   setBodyWeight,
   weights,
   onWeightChange,
+  readOnly = false,
+  dataSource = 'manual',
 }) => {
   return (
     <div className="bg-gradient-to-r from-[#FAF7F2] to-[#F0E6D6] rounded-2xl p-4 sm:p-6 mb-6 sm:mb-8 border border-[#E8D7C3]">
@@ -68,7 +72,10 @@ const StrengthInputForm: React.FC<StrengthInputFormProps> = ({
             type="number"
             value={bodyWeight}
             onChange={(e) => setBodyWeight(Number(e.target.value))}
-            className="w-full px-3 py-2 border border-[#E8D7C3] rounded-lg focus:ring-2 focus:ring-[#8B9A5B] focus:border-transparent text-base"
+            disabled={readOnly}
+            className={`w-full px-3 py-2 border border-[#E8D7C3] rounded-lg focus:ring-2 focus:ring-[#8B9A5B] focus:border-transparent text-base ${
+              readOnly ? 'bg-gray-100 text-gray-600 cursor-not-allowed' : ''
+            }`}
             min="100"
             max="400"
           />
@@ -77,8 +84,17 @@ const StrengthInputForm: React.FC<StrengthInputFormProps> = ({
 
       <div className="bg-[#F0E6D6]/50 rounded-lg p-3 mb-4">
         <p className="text-sm text-[#2C2C2C]/70">
-          <strong>Equipment Note:</strong> Enter your best weight for each movement. For dumbbell exercises, 
-          enter the total weight used (e.g., if using 50lb dumbbells, enter 100lbs for total).
+          {dataSource === 'workout_data' ? (
+            <>
+              <strong>Workout Data:</strong> These weights are calculated from your actual workout sessions. 
+              Switch to manual input mode if you want to override these values.
+            </>
+          ) : (
+            <>
+              <strong>Equipment Note:</strong> Enter your best weight for each movement. For dumbbell exercises, 
+              enter the total weight used (e.g., if using 50lb dumbbells, enter 100lbs for total).
+            </>
+          )}
         </p>
       </div>
 
@@ -92,7 +108,10 @@ const StrengthInputForm: React.FC<StrengthInputFormProps> = ({
               type="number"
               value={weights.squat}
               onChange={(e) => onWeightChange('squat', Number(e.target.value))}
-              className="w-full px-3 py-2 border border-[#E8D7C3] rounded-lg focus:ring-2 focus:ring-[#8B9A5B] focus:border-transparent text-base"
+              disabled={readOnly}
+              className={`w-full px-3 py-2 border border-[#E8D7C3] rounded-lg focus:ring-2 focus:ring-[#8B9A5B] focus:border-transparent text-base ${
+                readOnly ? 'bg-gray-100 text-gray-600 cursor-not-allowed' : ''
+              }`}
               min="0"
               max="1000"
             />
@@ -107,7 +126,10 @@ const StrengthInputForm: React.FC<StrengthInputFormProps> = ({
               onChange={(e) =>
                 onWeightChange('deadlift', Number(e.target.value))
               }
-              className="w-full px-3 py-2 border border-[#E8D7C3] rounded-lg focus:ring-2 focus:ring-[#8B9A5B] focus:border-transparent text-base"
+              disabled={readOnly}
+              className={`w-full px-3 py-2 border border-[#E8D7C3] rounded-lg focus:ring-2 focus:ring-[#8B9A5B] focus:border-transparent text-base ${
+                readOnly ? 'bg-gray-100 text-gray-600 cursor-not-allowed' : ''
+              }`}
               min="0"
               max="1000"
             />
@@ -123,7 +145,10 @@ const StrengthInputForm: React.FC<StrengthInputFormProps> = ({
               type="number"
               value={weights.bench}
               onChange={(e) => onWeightChange('bench', Number(e.target.value))}
-              className="w-full px-3 py-2 border border-[#E8D7C3] rounded-lg focus:ring-2 focus:ring-[#8B9A5B] focus:border-transparent text-base"
+              disabled={readOnly}
+              className={`w-full px-3 py-2 border border-[#E8D7C3] rounded-lg focus:ring-2 focus:ring-[#8B9A5B] focus:border-transparent text-base ${
+                readOnly ? 'bg-gray-100 text-gray-600 cursor-not-allowed' : ''
+              }`}
               min="0"
               max="1000"
             />
@@ -138,7 +163,10 @@ const StrengthInputForm: React.FC<StrengthInputFormProps> = ({
               onChange={(e) =>
                 onWeightChange('overheadPress', Number(e.target.value))
               }
-              className="w-full px-3 py-2 border border-[#E8D7C3] rounded-lg focus:ring-2 focus:ring-[#8B9A5B] focus:border-transparent text-base"
+              disabled={readOnly}
+              className={`w-full px-3 py-2 border border-[#E8D7C3] rounded-lg focus:ring-2 focus:ring-[#8B9A5B] focus:border-transparent text-base ${
+                readOnly ? 'bg-gray-100 text-gray-600 cursor-not-allowed' : ''
+              }`}
               min="0"
               max="1000"
             />
@@ -156,7 +184,10 @@ const StrengthInputForm: React.FC<StrengthInputFormProps> = ({
               onChange={(e) =>
                 onWeightChange('romanianDeadlift', Number(e.target.value))
               }
-              className="w-full px-3 py-2 border border-[#E8D7C3] rounded-lg focus:ring-2 focus:ring-[#8B9A5B] focus:border-transparent text-base"
+              disabled={readOnly}
+              className={`w-full px-3 py-2 border border-[#E8D7C3] rounded-lg focus:ring-2 focus:ring-[#8B9A5B] focus:border-transparent text-base ${
+                readOnly ? 'bg-gray-100 text-gray-600 cursor-not-allowed' : ''
+              }`}
               min="0"
               max="1000"
             />

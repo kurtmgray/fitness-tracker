@@ -12,11 +12,17 @@ import { addSetToExercise } from "./procedures/addSet";
 import { updateSet } from "./procedures/updateSet";
 import { deleteSet } from "./procedures/deleteSet";
 import { getUserWorkoutSessions } from "./procedures/getUserSessions";
+import { getUserSessionsWithDetails } from "./procedures/getUserSessionsWithDetails";
 import { getWorkoutSessionStats } from "./procedures/getSessionStats";
 import { setEquipmentPreference } from "./procedures/setEquipmentPreference";
 import { getEquipmentPreferences } from "./procedures/getEquipmentPreferences";
 import { getBandConfigurations } from "./procedures/getBandConfigurations";
 import { createBandConfiguration } from "./procedures/createBandConfiguration";
+import { getWorkoutTemplate } from "./procedures/getWorkoutTemplate";
+import { createWorkoutSession as createFullWorkoutSession } from "./procedures/createWorkoutSession";
+import { saveSet } from "./procedures/saveSet";
+import { completeWorkoutSession } from "./procedures/completeWorkoutSession";
+import { getActiveSession } from "./procedures/getActiveSession";
 
 export const workoutsRouter = router({
   // Legacy procedures (keep for compatibility)
@@ -29,6 +35,7 @@ export const workoutsRouter = router({
   updateSession: updateWorkoutSession,
   deleteSession: deleteWorkoutSession,
   getUserSessions: getUserWorkoutSessions,
+  getUserSessionsWithDetails: getUserSessionsWithDetails,
   getSessionStats: getWorkoutSessionStats,
   
   // Exercise management within sessions
@@ -48,4 +55,13 @@ export const workoutsRouter = router({
   // Band configurations
   getBandConfigurations: getBandConfigurations,
   createBandConfiguration: createBandConfiguration,
+  
+  // Workout templates
+  getWorkoutTemplate: getWorkoutTemplate,
+  
+  // Real-time workout tracking
+  createFullWorkoutSession: createFullWorkoutSession,
+  saveSet: saveSet,
+  completeWorkoutSession: completeWorkoutSession,
+  getActiveSession: getActiveSession,
 });

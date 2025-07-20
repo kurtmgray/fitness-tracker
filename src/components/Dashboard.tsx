@@ -8,6 +8,7 @@ import {
   CheckCircle,
   Target,
 } from 'lucide-react';
+import { UnifiedHeader } from '@/components/shared/UnifiedHeader';
 
 const Dashboard: React.FC = () => {
   const currentDate = new Date();
@@ -17,7 +18,6 @@ const Dashboard: React.FC = () => {
   const formattedDate = currentDate.toLocaleDateString('en-US', {
     month: 'long',
     day: 'numeric',
-    year: 'numeric',
   });
 
   const recentWorkouts = [
@@ -52,58 +52,41 @@ const Dashboard: React.FC = () => {
   ];
 
   return (
-    <div className="bg-white/95 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-soft border border-white/20 p-4 sm:p-8">
-      <div className="text-center mb-6 sm:mb-8">
-        <div className="flex items-center justify-center mb-2 sm:mb-4">
-          <Home className="w-8 h-8 sm:w-12 sm:h-12 text-[#8B9A5B] mr-3" />
-          <h1 className="text-2xl sm:text-4xl font-semibold text-[#2C2C2C]">
-            Dashboard
-          </h1>
-        </div>
-        <p className="text-base sm:text-lg text-[#2C2C2C]/80">
-          Welcome back! Ready for {dayOfWeek}?
-        </p>
-        <p className="text-sm text-[#2C2C2C]/60 mt-1">{formattedDate}</p>
-      </div>
+    <div className="bg-white/95 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-soft border border-white/20 p-4 sm:p-6">
+      <UnifiedHeader
+        title="Dashboard"
+        icon={Home}
+        compact={true}
+        rightContent={
+          <div className="text-right text-sm">
+            <div className="text-[#2C2C2C] font-medium">{dayOfWeek}</div>
+            <div className="text-[#2C2C2C]/60">{formattedDate}</div>
+          </div>
+        }
+      />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+      <div className="mb-6">
         <Link
           to="/workout"
-          className="bg-gradient-to-r from-[#8B9A5B] to-[#6B7A4B] hover:from-[#6B7A4B] hover:to-[#5A6940] text-white rounded-xl p-6 transition-all duration-300 transform hover:scale-105 shadow-medium hover:shadow-strong"
+          className="bg-gradient-to-r from-[#8B9A5B] to-[#6B7A4B] hover:from-[#6B7A4B] hover:to-[#5A6940] text-white rounded-xl p-4 transition-all duration-300 transform hover:scale-105 shadow-medium hover:shadow-strong block"
         >
           <div className="flex items-center justify-between">
-            <div>
-              <Play className="w-8 h-8 mb-2" />
-              <h3 className="text-xl font-bold mb-1">Start Workout</h3>
-              <p className="text-white/80 text-sm">
-                Begin your next training session
-              </p>
+            <div className="flex items-center">
+              <Play className="w-6 h-6 mr-3" />
+              <div>
+                <h3 className="text-lg font-semibold">Start Workout</h3>
+                <p className="text-white/80 text-sm">Begin training session</p>
+              </div>
             </div>
-            <div className="text-3xl opacity-20">→</div>
-          </div>
-        </Link>
-
-        <Link
-          to="/strength"
-          className="bg-gradient-to-r from-[#6B7A4B] to-[#2C2C2C] hover:from-[#5A6940] hover:to-[#1A1A1A] text-white rounded-xl p-6 transition-all duration-300 transform hover:scale-105 shadow-medium hover:shadow-strong"
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <Activity className="w-8 h-8 mb-2" />
-              <h3 className="text-xl font-bold mb-1">Strength Check</h3>
-              <p className="text-white/80 text-sm">
-                Assess your current strength levels
-              </p>
-            </div>
-            <div className="text-3xl opacity-20">→</div>
+            <div className="text-2xl opacity-20">→</div>
           </div>
         </Link>
       </div>
 
-      <div className="mb-8">
+      <div className="mb-6">
         <div className="flex items-center mb-4">
           <BarChart3 className="w-6 h-6 text-[#8B9A5B] mr-2" />
-          <h2 className="text-xl font-semibold text-[#2C2C2C]">Quick Stats</h2>
+          <h2 className="text-lg font-semibold text-[#2C2C2C]">Quick Stats</h2>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {quickStats.map((stat, index) => (
@@ -121,11 +104,11 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
 
-      <div className="mb-8">
+      <div className="mb-6">
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center">
             <Activity className="w-6 h-6 text-[#8B9A5B] mr-2" />
-            <h2 className="text-xl font-semibold text-[#2C2C2C]">
+            <h2 className="text-lg font-semibold text-[#2C2C2C]">
               Recent Workouts
             </h2>
           </div>

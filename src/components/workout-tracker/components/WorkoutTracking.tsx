@@ -1,6 +1,10 @@
 import React from 'react';
 import { ArrowLeft, CheckCircle } from 'lucide-react';
-import { supportsDualWeights, isBodyweightExercise, getExerciseTrackingType } from '@/utils/exerciseUtils';
+import {
+  supportsDualWeights,
+  isBodyweightExercise,
+  getExerciseTrackingType,
+} from '@/utils/exerciseUtils';
 import DualWeightInput from '@/components/shared/DualWeightInput';
 import TimeInput from '@/components/shared/TimeInput';
 import WeightDisplay from '@/components/shared/WeightDisplay';
@@ -10,13 +14,13 @@ interface WorkoutTrackingProps {
   currentSession: WorkoutSession;
   currentExerciseIndex: number;
   exerciseSetProgress: Record<number, number>;
-  workoutTemplates: Record<WorkoutDay, ExerciseTemplate[]>;
+  workoutTemplate: any; // Database workout template
   selectedDay: WorkoutDay;
   onUpdateSession: (session: WorkoutSession) => void;
   onCompleteSet: (setData: {
-    weight?: number;
-    weightLeft?: number;
-    weightRight?: number;
+    weight?: number | null;
+    weightLeft?: number | null;
+    weightRight?: number | null;
     reps?: number;
     timeSeconds?: number;
     isFailure?: boolean;
@@ -30,7 +34,7 @@ const WorkoutTracking: React.FC<WorkoutTrackingProps> = ({
   currentSession,
   currentExerciseIndex,
   exerciseSetProgress,
-  workoutTemplates,
+  workoutTemplate,
   selectedDay,
   onUpdateSession,
   onCompleteSet,
@@ -40,9 +44,10 @@ const WorkoutTracking: React.FC<WorkoutTrackingProps> = ({
   const currentExercise = currentSession.exercises[currentExerciseIndex];
   const currentSetForExercise = exerciseSetProgress[currentExerciseIndex] || 0;
   const currentSet = currentExercise.sets[currentSetForExercise];
-  const template = workoutTemplates[selectedDay][currentExerciseIndex];
+  const template = workoutTemplate?.exercises?.[currentExerciseIndex];
 
-  const isCurrentExerciseComplete = currentSetForExercise >= currentExercise.sets.length;
+  const isCurrentExerciseComplete =
+    currentSetForExercise >= currentExercise.sets.length;
   const exerciseName = currentExercise.exerciseName;
   const trackingType = getExerciseTrackingType(exerciseName);
   const isDualWeight = supportsDualWeights(exerciseName);
@@ -63,13 +68,21 @@ const WorkoutTracking: React.FC<WorkoutTrackingProps> = ({
       </div>
 
       <div className="text-center mb-8">
-        <h2 className="text-2xl font-bold text-[#2C2C2C] mb-2">
-          Exercise {currentExerciseIndex + 1} of {currentSession.exercises.length}
-        </h2>
-        <h3 className="text-3xl font-bold text-[#8B9A5B] mb-2">
+        <h3 className="text-2xl font-bold text-[#8B9A5B] mb-3">
           {currentExercise.exerciseName}
         </h3>
-        {isCurrentExerciseComplete ? (
+        <div className="flex items-center justify-center gap-3 mb-3">
+          <span className="bg-[#8B9A5B]/20 text-[#6B7A4B] px-3 py-1 rounded-full text-sm font-medium">
+            Exercise {currentExerciseIndex + 1} of{' '}
+            {currentSession.exercises.length}
+          </span>
+          {!isCurrentExerciseComplete && (
+            <span className="bg-[#8B9A5B]/20 text-[#6B7A4B] px-3 py-1 rounded-full text-sm font-medium">
+              Set {currentSetForExercise + 1} of {currentExercise.sets.length}
+            </span>
+          )}
+        </div>
+        {isCurrentExerciseComplete && (
           <div className="space-y-2">
             <p className="text-lg text-[#8B9A5B] font-medium">
               <CheckCircle className="w-5 h-5 mr-1 inline" />
@@ -79,10 +92,6 @@ const WorkoutTracking: React.FC<WorkoutTrackingProps> = ({
               Move to the next exercise or review other exercises
             </p>
           </div>
-        ) : (
-          <p className="text-lg text-[#2C2C2C]/80">
-            Set {currentSetForExercise + 1} of {currentExercise.sets.length}
-          </p>
         )}
         {currentExercise.useBosoBall && (
           <span className="inline-block bg-[#8B9A5B]/20 text-[#6B7A4B] px-3 py-1 rounded-full text-sm font-medium mt-2">
@@ -127,8 +136,8 @@ const WorkoutTracking: React.FC<WorkoutTrackingProps> = ({
 
       {!isCurrentExerciseComplete ? (
         <div className="bg-gradient-to-r from-[#FAF7F2] to-[#F0E6D6] rounded-2xl p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4">
+          <div className="flex flex-col gap-4">
+            <div className="flex gap-4 justify-center space-y-2">
               {/* Weight Input Section */}
               {!isBodyweight && (
                 <div>
@@ -144,7 +153,7 @@ const WorkoutTracking: React.FC<WorkoutTrackingProps> = ({
                       className="text-xs text-[#8B9A5B]"
                     />
                   </div>
-                  
+
                   {isDualWeight ? (
                     <DualWeightInput
                       exerciseName={exerciseName}
@@ -152,8 +161,12 @@ const WorkoutTracking: React.FC<WorkoutTrackingProps> = ({
                       weightRight={currentSet.weightRight || null}
                       onChange={(left, right) => {
                         const updatedSession = { ...currentSession };
-                        updatedSession.exercises[currentExerciseIndex].sets[currentSetForExercise].weightLeft = left;
-                        updatedSession.exercises[currentExerciseIndex].sets[currentSetForExercise].weightRight = right;
+                        updatedSession.exercises[currentExerciseIndex].sets[
+                          currentSetForExercise
+                        ].weightLeft = left;
+                        updatedSession.exercises[currentExerciseIndex].sets[
+                          currentSetForExercise
+                        ].weightRight = right;
                         onUpdateSession(updatedSession);
                       }}
                     />
@@ -164,7 +177,11 @@ const WorkoutTracking: React.FC<WorkoutTrackingProps> = ({
                         value={currentSet.weight || ''}
                         onChange={(e) => {
                           const updatedSession = { ...currentSession };
-                          updatedSession.exercises[currentExerciseIndex].sets[currentSetForExercise].weight = e.target.value ? Number(e.target.value) : null;
+                          updatedSession.exercises[currentExerciseIndex].sets[
+                            currentSetForExercise
+                          ].weight = e.target.value
+                            ? Number(e.target.value)
+                            : null;
                           onUpdateSession(updatedSession);
                         }}
                         placeholder="Weight"
@@ -176,8 +193,13 @@ const WorkoutTracking: React.FC<WorkoutTrackingProps> = ({
                         <button
                           onClick={() => {
                             const updatedSession = { ...currentSession };
-                            const currentWeight = typeof currentSet.weight === 'number' ? currentSet.weight : 0;
-                            updatedSession.exercises[currentExerciseIndex].sets[currentSetForExercise].weight = Math.max(0, currentWeight - 2.5);
+                            const currentWeight =
+                              typeof currentSet.weight === 'number'
+                                ? currentSet.weight
+                                : 0;
+                            updatedSession.exercises[currentExerciseIndex].sets[
+                              currentSetForExercise
+                            ].weight = Math.max(0, currentWeight - 2.5);
                             onUpdateSession(updatedSession);
                           }}
                           className="px-3 py-1 bg-[#2C2C2C]/10 text-[#2C2C2C] rounded font-medium hover:bg-[#2C2C2C]/20"
@@ -187,8 +209,13 @@ const WorkoutTracking: React.FC<WorkoutTrackingProps> = ({
                         <button
                           onClick={() => {
                             const updatedSession = { ...currentSession };
-                            const currentWeight = typeof currentSet.weight === 'number' ? currentSet.weight : 0;
-                            updatedSession.exercises[currentExerciseIndex].sets[currentSetForExercise].weight = currentWeight + 2.5;
+                            const currentWeight =
+                              typeof currentSet.weight === 'number'
+                                ? currentSet.weight
+                                : 0;
+                            updatedSession.exercises[currentExerciseIndex].sets[
+                              currentSetForExercise
+                            ].weight = currentWeight + 2.5;
                             onUpdateSession(updatedSession);
                           }}
                           className="px-3 py-1 bg-[#8B9A5B]/20 text-[#6B7A4B] rounded font-medium hover:bg-[#8B9A5B]/30"
@@ -211,7 +238,9 @@ const WorkoutTracking: React.FC<WorkoutTrackingProps> = ({
                     seconds={currentSet.timeSeconds || null}
                     onChange={(seconds) => {
                       const updatedSession = { ...currentSession };
-                      updatedSession.exercises[currentExerciseIndex].sets[currentSetForExercise].timeSeconds = seconds;
+                      updatedSession.exercises[currentExerciseIndex].sets[
+                        currentSetForExercise
+                      ].timeSeconds = seconds;
                       onUpdateSession(updatedSession);
                     }}
                     placeholder="2:00"
@@ -220,14 +249,20 @@ const WorkoutTracking: React.FC<WorkoutTrackingProps> = ({
               ) : (
                 <div>
                   <label className="block text-sm font-medium text-[#2C2C2C] mb-2">
-                    {isFailureBased ? 'Reps (to failure)' : `Reps ${template.reps ? `(target: ${template.reps})` : ''}`}
+                    {isFailureBased
+                      ? 'Reps (to failure)'
+                      : `Reps ${
+                          template.reps ? `(target: ${template.reps})` : ''
+                        }`}
                   </label>
                   <input
                     type="number"
                     value={currentSet.reps || ''}
                     onChange={(e) => {
                       const updatedSession = { ...currentSession };
-                      updatedSession.exercises[currentExerciseIndex].sets[currentSetForExercise].reps = e.target.value ? Number(e.target.value) : 0;
+                      updatedSession.exercises[currentExerciseIndex].sets[
+                        currentSetForExercise
+                      ].reps = e.target.value ? Number(e.target.value) : 0;
                       onUpdateSession(updatedSession);
                     }}
                     placeholder="Reps"
@@ -251,12 +286,16 @@ const WorkoutTracking: React.FC<WorkoutTrackingProps> = ({
                       checked={currentSet.isFailure || false}
                       onChange={(e) => {
                         const updatedSession = { ...currentSession };
-                        updatedSession.exercises[currentExerciseIndex].sets[currentSetForExercise].isFailure = e.target.checked;
+                        updatedSession.exercises[currentExerciseIndex].sets[
+                          currentSetForExercise
+                        ].isFailure = e.target.checked;
                         onUpdateSession(updatedSession);
                       }}
                       className="rounded border-[#E8D7C3] text-[#8B9A5B] focus:ring-[#8B9A5B]"
                     />
-                    <span className="text-sm text-[#2C2C2C]">Went to failure</span>
+                    <span className="text-sm text-[#2C2C2C]">
+                      Went to failure
+                    </span>
                   </label>
                 </div>
               )}
@@ -271,7 +310,9 @@ const WorkoutTracking: React.FC<WorkoutTrackingProps> = ({
                   value={currentSet.rpe || ''}
                   onChange={(e) => {
                     const updatedSession = { ...currentSession };
-                    updatedSession.exercises[currentExerciseIndex].sets[currentSetForExercise].rpe = e.target.value ? Number(e.target.value) : undefined;
+                    updatedSession.exercises[currentExerciseIndex].sets[
+                      currentSetForExercise
+                    ].rpe = e.target.value ? Number(e.target.value) : undefined;
                     onUpdateSession(updatedSession);
                   }}
                   className="w-full px-4 py-3 border border-[#E8D7C3] rounded-lg focus:ring-2 focus:ring-[#8B9A5B] focus:border-transparent"
@@ -279,14 +320,17 @@ const WorkoutTracking: React.FC<WorkoutTrackingProps> = ({
                   <option value="">Select RPE</option>
                   {Array.from({ length: 10 }, (_, i) => i + 1).map((num) => (
                     <option key={num} value={num}>
-                      {num} - {num <= 6 ? 'Easy' : num <= 8 ? 'Moderate' : 'Hard'}
+                      {num} -{' '}
+                      {num <= 6 ? 'Easy' : num <= 8 ? 'Moderate' : 'Hard'}
                     </option>
                   ))}
                 </select>
               </div>
 
               <div className="bg-white rounded-lg p-4">
-                <h4 className="font-medium text-[#2C2C2C] mb-2">Set Progress</h4>
+                <h4 className="font-medium text-[#2C2C2C] mb-2">
+                  Set Progress
+                </h4>
                 <div className="grid grid-cols-4 gap-2">
                   {currentExercise.sets.map((set, idx) => (
                     <div
@@ -303,7 +347,7 @@ const WorkoutTracking: React.FC<WorkoutTrackingProps> = ({
                       {set.completed && (
                         <div className="text-xs">
                           {isTimeBased ? (
-                            <TimeDisplay seconds={set.timeSeconds} />
+                            <TimeDisplay seconds={set.timeSeconds || null} />
                           ) : (
                             <>
                               <WeightDisplay
@@ -329,13 +373,15 @@ const WorkoutTracking: React.FC<WorkoutTrackingProps> = ({
             <button
               onClick={() => {
                 const setData: any = {
-                  rpe: currentSet.rpe
+                  rpe: currentSet.rpe,
                 };
 
                 if (isTimeBased) {
-                  setData.timeSeconds = Number(currentSet.timeSeconds || 0);
+                  setData.timeSeconds = currentSet.timeSeconds
+                    ? Number(currentSet.timeSeconds)
+                    : undefined;
                 } else {
-                  setData.reps = Number(currentSet.reps || 0);
+                  setData.reps = currentSet.reps ? Number(currentSet.reps) : 0;
                 }
 
                 if (isFailureBased) {
@@ -344,10 +390,16 @@ const WorkoutTracking: React.FC<WorkoutTrackingProps> = ({
 
                 if (!isBodyweight) {
                   if (isDualWeight) {
-                    setData.weightLeft = Number(currentSet.weightLeft || 0);
-                    setData.weightRight = Number(currentSet.weightRight || 0);
+                    setData.weightLeft = currentSet.weightLeft
+                      ? Number(currentSet.weightLeft)
+                      : null;
+                    setData.weightRight = currentSet.weightRight
+                      ? Number(currentSet.weightRight)
+                      : null;
                   } else {
-                    setData.weight = Number(currentSet.weight || 0);
+                    setData.weight = currentSet.weight
+                      ? Number(currentSet.weight)
+                      : null;
                   }
                 }
 

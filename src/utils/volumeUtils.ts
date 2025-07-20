@@ -73,7 +73,7 @@ export const calculateWorkoutVolume = (
 // Get volume unit for display
 export const getVolumeUnit = (exerciseName: string): string => {
   const trackingType = getExerciseTrackingType(exerciseName);
-  return trackingType === 'time' ? 'lb-seconds' : 'lbs';
+  return trackingType === 'time' ? 'lb-minutes' : 'lbs';
 };
 
 // Format volume for display

@@ -167,8 +167,22 @@ async function createSessionSets(sessionExerciseId: string, sets: NormalizedSet[
     let totalWeight: number | null = null;
     if (set.weightLeft && set.weightRight) {
       totalWeight = set.weightLeft + set.weightRight;
-    } else if (set.weight) {
+    } else if (set.weight !== undefined && set.weight !== null) {
       totalWeight = set.weight;
+    }
+
+    // Handle the weight constraint - ensure at least one weight field or time_seconds is provided
+    let weight = set.weight;
+    let weightLeft = set.weightLeft;
+    let weightRight = set.weightRight;
+    
+    // If no weight fields are provided and it's not a time-based exercise, set weight to 0
+    if ((weight === undefined || weight === null) && 
+        (weightLeft === undefined || weightLeft === null) && 
+        (weightRight === undefined || weightRight === null) && 
+        (set.timeSeconds === undefined || set.timeSeconds === null)) {
+      weight = 0;
+      totalWeight = 0;
     }
 
     await db
@@ -176,9 +190,9 @@ async function createSessionSets(sessionExerciseId: string, sets: NormalizedSet[
       .values({
         session_exercise_id: sessionExerciseId,
         set_number: i + 1,
-        weight: set.weight || null,
-        weight_left: set.weightLeft || null,
-        weight_right: set.weightRight || null,
+        weight: weight !== undefined ? weight : null,
+        weight_left: weightLeft || null,
+        weight_right: weightRight || null,
         total_weight: totalWeight,
         reps: set.reps || 0,
         time_seconds: set.timeSeconds || null,
@@ -206,8 +220,47 @@ async function createEquipmentPreferences(
     .execute();
 }
 
+async function cleanupPartialMigration(userId: string): Promise<void> {
+  console.log('🧹 Cleaning up any partial migration data...');
+  
+  // Delete in reverse order of dependencies
+  await db.deleteFrom('session_sets')
+    .where('session_exercise_id', 'in', 
+      db.selectFrom('session_exercises')
+        .select('id')
+        .where('session_id', 'in',
+          db.selectFrom('workout_sessions')
+            .select('id')
+            .where('user_id', '=', userId)
+        )
+    ).execute();
+    
+  await db.deleteFrom('workout_equipment_preferences_new')
+    .where('session_id', 'in',
+      db.selectFrom('workout_sessions')
+        .select('id')
+        .where('user_id', '=', userId)
+    ).execute();
+    
+  await db.deleteFrom('session_exercises')
+    .where('session_id', 'in',
+      db.selectFrom('workout_sessions')
+        .select('id')
+        .where('user_id', '=', userId)
+    ).execute();
+    
+  await db.deleteFrom('workout_sessions')
+    .where('user_id', '=', userId)
+    .execute();
+    
+  console.log('✅ Cleanup complete');
+}
+
 async function migrateWorkoutData(userId: string = 'default-user-id'): Promise<void> {
   console.log('🚀 Starting workout data migration...');
+  
+  // Clean up any existing data first
+  await cleanupPartialMigration(userId);
   
   // Load the normalized data
   const workoutData = await loadWorkoutData();

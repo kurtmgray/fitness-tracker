@@ -1,5 +1,6 @@
 import React from 'react';
 import { Trophy } from 'lucide-react';
+import { useRouter } from '@tanstack/react-router';
 
 interface WorkoutCompleteProps {
   currentSession: WorkoutSession;
@@ -14,6 +15,7 @@ const WorkoutComplete: React.FC<WorkoutCompleteProps> = ({
   dayTitles,
   onStartAnother,
 }) => {
+  const router = useRouter();
   const totalVolume = currentSession.exercises.reduce(
     (total, exercise) =>
       total +
@@ -95,7 +97,10 @@ const WorkoutComplete: React.FC<WorkoutCompleteProps> = ({
 
       <div className="space-y-4">
         <button
-          onClick={onStartAnother}
+          onClick={() => {
+            onStartAnother(); // Reset local state
+            router.navigate({ to: '/workout' });
+          }}
           className="bg-gradient-to-r from-[#8B9A5B] to-[#6B7A4B] hover:from-[#6B7A4B] hover:to-[#5A6940] text-white font-bold py-4 px-8 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
         >
           Start Another Workout

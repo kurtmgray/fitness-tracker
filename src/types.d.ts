@@ -6,6 +6,8 @@ interface SetEntry {
   weightLeft?: number | null; // Left hand weight for asymmetric exercises
   weightRight?: number | null; // Right hand weight for asymmetric exercises
   reps: number;
+  timeSeconds?: number; // For time-based exercises like Farmer's Carry
+  isFailure?: boolean; // For "to failure" sets
   completed: boolean;
   rpe?: number; // 1-10 
   equipment?: {
@@ -16,6 +18,7 @@ interface SetEntry {
 }
 
 interface ExerciseEntry {
+  exerciseId?: string; // Database exercise ID for proper matching
   exerciseName: string;
   sets: SetEntry[];
   useBosoBall?: boolean;

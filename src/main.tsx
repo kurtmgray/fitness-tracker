@@ -46,6 +46,24 @@ const workoutRoute = createRoute({
   component: WorkoutTracker,
 });
 
+const workoutDayRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/workout/$day',
+  component: WorkoutTracker,
+});
+
+const workoutTrackRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/workout/$day/track',
+  component: WorkoutTracker,
+});
+
+const workoutCompleteRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/workout/$day/complete',
+  component: WorkoutTracker,
+});
+
 const strengthRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/strength',
@@ -61,6 +79,9 @@ const historyRoute = createRoute({
 const routeTree = rootRoute.addChildren([
   indexRoute,
   workoutRoute,
+  workoutDayRoute,
+  workoutTrackRoute,
+  workoutCompleteRoute,
   strengthRoute,
   historyRoute,
 ]);

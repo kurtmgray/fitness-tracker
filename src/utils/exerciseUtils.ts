@@ -170,13 +170,13 @@ export const calculateTotalWeight = (
     return 185; // Estimated bodyweight
   }
   
-  // Dual weight exercises
-  if (weightLeft !== undefined && weightRight !== undefined) {
+  // Dual weight exercises (check if either weight is provided)
+  if ((weightLeft !== undefined && weightLeft !== null) || (weightRight !== undefined && weightRight !== null)) {
     return (weightLeft || 0) + (weightRight || 0);
   }
   
   // Single weight exercises
-  if (weight !== null && weight !== undefined) {
+  if (weight !== null && weight !== undefined && weight > 0) {
     return weight * (rules?.weightMultiplier || 1);
   }
   
@@ -213,7 +213,7 @@ export const formatExerciseWeight = (exerciseName: string, weight: number | null
   
   if (rules.weightMultiplier === 2) {
     const total = weight * 2;
-    return `${weight} × 2 = ${total} lbs (${equipmentLabel})`;
+    return `Total = ${total} lbs (${equipmentLabel})`;
   }
   
   return `${weight} lbs (${equipmentLabel})`;
@@ -280,9 +280,9 @@ export const formatDualWeight = (exerciseName: string, weightLeft: number | null
   const total = left + right;
   
   if (left === right && left > 0) {
-    return `${left} × 2 = ${total} lbs`;
+    return `${total} lbs`;
   } else {
-    return `${left} + ${right} = ${total} lbs`;
+    return `${total} lbs`;
   }
 };
 

@@ -1,12 +1,63 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { calculateTotalWeight, getExerciseTrackingType } from '@/utils/exerciseUtils';
 import { calculateTimeVolume } from '@/utils/timeUtils';
+import { trpc } from '@/lib/trpc';
 
 export const useWorkoutHistoryData = () => {
-  // TODO: Replace with real tRPC data fetching
-  const [mockData] = useState<WeekData[]>([]);
+  // Fetch real workout data from the database with full details
+  const { data: rawSessions, isLoading } = trpc.workouts.getUserSessionsWithDetails.useQuery({ 
+    limit: 50 
+  });
+  
   const [expandedWeeks, setExpandedWeeks] = useState<Set<string>>(new Set());
   const [expandedWorkouts, setExpandedWorkouts] = useState<Set<string>>(new Set());
+
+  // Transform raw session data into the expected format
+  const weekData = useMemo(() => {
+    if (!rawSessions || rawSessions.length === 0) return [];
+
+    // Group sessions by week
+    const weekMap = new Map<string, any[]>();
+    
+    rawSessions.forEach(session => {
+      const sessionDate = new Date(session.date);
+      const weekStart = new Date(sessionDate);
+      weekStart.setDate(sessionDate.getDate() - sessionDate.getDay()); // Start of week (Sunday)
+      const weekKey = weekStart.toISOString().split('T')[0];
+      
+      if (!weekMap.has(weekKey)) {
+        weekMap.set(weekKey, []);
+      }
+      weekMap.get(weekKey)!.push(session);
+    });
+
+    // Convert to WeekData format
+    return Array.from(weekMap.entries()).map(([weekKey, sessions]) => ({
+      weekStartDate: new Date(weekKey),
+      workouts: sessions.map(session => ({
+        id: session.id,
+        date: new Date(session.date),
+        day: session.dayType as WorkoutDay,
+        dayType: session.dayType,
+        duration: session.duration,
+        exercises: session.exercises.map((exercise: any) => ({
+          exerciseId: exercise.exerciseId, // Include the exercise ID for proper matching
+          exerciseName: exercise.exerciseName,
+          equipment: 'barbell', // TODO: Get from equipment preferences
+          sets: exercise.sets.map((set: any) => ({
+            weight: set.weight,
+            weightLeft: set.weightLeft,
+            weightRight: set.weightRight,
+            reps: set.reps,
+            timeSeconds: set.timeSeconds,
+            isFailure: set.isFailure,
+            completed: set.completed,
+          })),
+        })),
+        completed: true,
+      })),
+    })).sort((a, b) => b.weekStartDate.getTime() - a.weekStartDate.getTime());
+  }, [rawSessions]);
 
   const dayTitles: Record<WorkoutDay, string> = {
     day1: 'Pull & Lower Focus',
@@ -108,7 +159,8 @@ export const useWorkoutHistoryData = () => {
   };
 
   return {
-    mockData,
+    mockData: weekData,
+    isLoading,
     expandedWeeks,
     expandedWorkouts,
     dayTitles,
