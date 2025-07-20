@@ -19,7 +19,7 @@ export const trpcClient = trpc.createClient({
     httpBatchLink({
       url: process.env.NODE_ENV === 'production' 
         ? '/trpc'  // Same server in production
-        : 'http://localhost:3001',
+        : 'http://localhost:3001/trpc',  // Fixed: add /trpc path for local dev
       headers: () => {
         const token = localStorage.getItem('auth-token');
         return token ? { authorization: `Bearer ${token}` } : {};
