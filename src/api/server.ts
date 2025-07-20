@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import http from 'http';
 
 dotenv.config();
 
@@ -33,38 +34,6 @@ const server = createHTTPServer({
       res.end();
       return;
     }
-
-    // Serve static files in production
-    if (process.env.NODE_ENV === 'production' && req.url && !req.url.startsWith('/trpc')) {
-      const filePath = req.url === '/' ? 'index.html' : req.url.slice(1);
-      const fullPath = path.join(distPath, filePath);
-      
-      // Check if file exists
-      if (fs.existsSync(fullPath) && !fs.statSync(fullPath).isDirectory()) {
-        const ext = path.extname(fullPath);
-        const contentType = {
-          '.html': 'text/html',
-          '.js': 'application/javascript',
-          '.css': 'text/css',
-          '.json': 'application/json',
-          '.png': 'image/png',
-          '.jpg': 'image/jpeg',
-          '.gif': 'image/gif',
-          '.ico': 'image/x-icon'
-        }[ext] || 'application/octet-stream';
-        
-        res.setHeader('Content-Type', contentType);
-        res.writeHead(200);
-        res.end(fs.readFileSync(fullPath));
-        return;
-      } else {
-        // Serve index.html for client-side routing
-        res.setHeader('Content-Type', 'text/html');
-        res.writeHead(200);
-        res.end(fs.readFileSync(path.join(distPath, 'index.html')));
-        return;
-      }
-    }
     
     next();
   },
@@ -72,6 +41,50 @@ const server = createHTTPServer({
 
 const PORT = process.env.PORT || process.env.API_PORT || 3001;
 
-server.listen(PORT, () => {
-  console.log(`🚀 tRPC Server running on http://localhost:${PORT}`);
-});
+// Add static file serving after tRPC setup
+if (process.env.NODE_ENV === 'production') {
+  const originalServer = server;
+  
+  const customServer = http.createServer((req, res) => {
+    // Handle tRPC requests
+    if (req.url?.startsWith('/trpc')) {
+      return originalServer.handler(req, res);
+    }
+    
+    // Serve static files
+    const filePath = req.url === '/' ? 'index.html' : req.url?.slice(1) || 'index.html';
+    const fullPath = path.join(distPath, filePath);
+    
+    // Check if file exists
+    if (fs.existsSync(fullPath) && !fs.statSync(fullPath).isDirectory()) {
+      const ext = path.extname(fullPath);
+      const contentType = {
+        '.html': 'text/html',
+        '.js': 'application/javascript',
+        '.css': 'text/css',
+        '.json': 'application/json',
+        '.png': 'image/png',
+        '.jpg': 'image/jpeg',
+        '.gif': 'image/gif',
+        '.ico': 'image/x-icon'
+      }[ext] || 'application/octet-stream';
+      
+      res.setHeader('Content-Type', contentType);
+      res.writeHead(200);
+      res.end(fs.readFileSync(fullPath));
+    } else {
+      // Serve index.html for client-side routing
+      res.setHeader('Content-Type', 'text/html');
+      res.writeHead(200);
+      res.end(fs.readFileSync(path.join(distPath, 'index.html')));
+    }
+  });
+  
+  customServer.listen(PORT, () => {
+    console.log(`🚀 tRPC + Static Server running on port ${PORT}`);
+  });
+} else {
+  server.listen(PORT, () => {
+    console.log(`🚀 tRPC Server running on http://localhost:${PORT}`);
+  });
+}
