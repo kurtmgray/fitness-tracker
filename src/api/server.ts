@@ -16,11 +16,9 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || process.env.API_PORT || 3001;
 
-// Environment-aware CORS configuration
+// CORS configuration for local development
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://gac-fitnesstracker-c3071bd9b20b.herokuapp.com']
-    : ['http://localhost:3000'],
+  origin: ['http://localhost:3000'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
@@ -48,18 +46,7 @@ app.use(
   })
 );
 
-// Serve static files in production
-if (process.env.NODE_ENV === 'production') {
-  const distPath = path.join(__dirname, '../../dist');
-  
-  // Serve static assets
-  app.use(express.static(distPath));
-  
-  // Handle client-side routing - serve index.html for all non-API routes
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(distPath, 'index.html'));
-  });
-}
+// Local development - no static file serving needed (Vite handles this)
 
 // Error handling middleware
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
