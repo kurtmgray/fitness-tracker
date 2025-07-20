@@ -39,10 +39,10 @@ async function testMaxWeights() {
       .where('ws.user_id', '=', userId)
       .where('ss.completed', '=', true)
       .where('e.name', 'in', exerciseNames)
-      .where(({ or }) => 
+      .where(({ or, eb }) => 
         or([
-          db.selectFrom('session_sets').select('weight').where('weight', '>', 0).limit(1),
-          db.selectFrom('session_sets').select('total_weight').where('total_weight', '>', 0).limit(1)
+          eb('ss.weight', '>', eb.lit(0)),
+          eb('ss.total_weight', '>', eb.lit(0))
         ])
       )
       .groupBy('e.name')

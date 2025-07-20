@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useRouter } from '@tanstack/react-router';
 import { useWorkoutHistory } from './useWorkoutHistory';
 import { useWorkoutSuggestions } from './useWorkoutSuggestions';
-import { supportsDualWeights } from '../../../utils/exerciseUtils';
+// import { supportsDualWeights } from '../../../utils/exerciseUtils';
 import { findExerciseInWorkoutById } from '../../../utils/exerciseIdMapping';
 import { trpc } from '@/lib/trpc';
 
@@ -37,13 +37,13 @@ export const useWorkoutSession = (routeSelectedDay?: WorkoutDay | null, routeCur
   const completeSessionMutation = trpc.workouts.completeWorkoutSession.useMutation();
   
   // tRPC query for active session recovery
-  const { data: activeSession, refetch: refetchActiveSession } = trpc.workouts.getActiveSession.useQuery(
+  const { data: activeSession } = trpc.workouts.getActiveSession.useQuery(
     { dayType: selectedDay! },
     { enabled: !!selectedDay && (routeCurrentPhase === 'tracking' || routeCurrentPhase === 'complete') }
   );
   
   // Fetch workout template from database when a day is selected
-  const { data: workoutTemplate, refetch: refetchTemplate } = trpc.workouts.getWorkoutTemplate.useQuery(
+  const { data: workoutTemplate } = trpc.workouts.getWorkoutTemplate.useQuery(
     { dayType: selectedDay! },
     { enabled: !!selectedDay }
   );
@@ -284,7 +284,7 @@ export const useWorkoutSession = (routeSelectedDay?: WorkoutDay | null, routeCur
       timeSeconds: setData.timeSeconds || null,
       isFailure: setData.isFailure || false,
       completed: true,
-      rpe: setData.rpe,
+      rpe: setData.rpe || null,
     };
 
     setCurrentSession(updatedSession);

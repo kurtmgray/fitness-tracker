@@ -1,6 +1,6 @@
 // Progress tracking utilities for fitness tracker
 
-import { calculateTotalWeight, getExerciseTrackingType } from './exerciseUtils';
+import { calculateTotalWeight } from './exerciseUtils';
 import { calculateSetVolume } from './volumeUtils';
 
 export interface ProgressDataPoint {

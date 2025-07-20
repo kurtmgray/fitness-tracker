@@ -48,7 +48,7 @@ export const formatTimeVerbose = (seconds: number): string => {
 };
 
 // Format time for display in sets (based on exercise tracking type)
-export const formatSetTime = (exerciseName: string, seconds: number | null): string => {
+export const formatSetTime = (seconds: number | null): string => {
   if (seconds === null) return '0:00';
   return formatTime(seconds);
 };
@@ -76,18 +76,17 @@ export const isValidTimeInput = (timeString: string): boolean => {
 };
 
 // Get appropriate time label for exercises
-export const getTimeLabel = (exerciseName: string): string => {
+export const getTimeLabel = (): string => {
   return 'Time (MM:SS)';
 };
 
 // Get appropriate time placeholder
-export const getTimePlaceholder = (exerciseName: string): string => {
+export const getTimePlaceholder = (): string => {
   return '2:00';
 };
 
 // Calculate time-based volume (time * weight for weighted time exercises)
 export const calculateTimeVolume = (
-  exerciseName: string,
   seconds: number,
   weight?: number | null,
   weightLeft?: number | null,

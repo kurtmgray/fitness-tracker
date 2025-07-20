@@ -32,8 +32,8 @@ export const getActualMaxes = protectedProcedure
         .where('ws.user_id', '=', ctx.user.id)
         .where('ss.completed', '=', true)
         .where('e.name', 'in', exerciseNames)
-        .where((eb) => 
-          eb.or([
+        .where(({ or, eb }) => 
+          or([
             eb('ss.weight', '>', 0),
             eb('ss.total_weight', '>', 0)
           ])

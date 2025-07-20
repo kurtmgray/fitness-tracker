@@ -1,6 +1,6 @@
 // Data normalization utilities for fitness tracker
 
-import { EquipmentType } from '@/components/shared/EquipmentSelector';
+import type { EquipmentType } from '@/components/shared/EquipmentSelector';
 
 // Exercise name mapping from your data to our standardized names
 const EXERCISE_NAME_MAPPING: Record<string, string> = {
@@ -155,9 +155,7 @@ export const normalizeSet = (
     weight1?: string;
     weight2?: string;
     weight?: string;
-  },
-  exerciseName: string,
-  equipment: EquipmentType
+  }
 ): {
   weight?: number;
   weightLeft?: number;

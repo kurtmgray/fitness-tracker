@@ -137,7 +137,7 @@ const WorkoutTracking: React.FC<WorkoutTrackingProps> = ({
       {!isCurrentExerciseComplete ? (
         <div className="bg-gradient-to-r from-[#FAF7F2] to-[#F0E6D6] rounded-2xl p-6">
           <div className="flex flex-col gap-4">
-            <div className="flex gap-4 justify-center space-y-2">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {/* Weight Input Section */}
               {!isBodyweight && (
                 <div>
@@ -277,32 +277,8 @@ const WorkoutTracking: React.FC<WorkoutTrackingProps> = ({
                 </div>
               )}
 
-              {/* Failure Toggle for Failure-Based Exercises */}
-              {isFailureBased && (
-                <div>
-                  <label className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={currentSet.isFailure || false}
-                      onChange={(e) => {
-                        const updatedSession = { ...currentSession };
-                        updatedSession.exercises[currentExerciseIndex].sets[
-                          currentSetForExercise
-                        ].isFailure = e.target.checked;
-                        onUpdateSession(updatedSession);
-                      }}
-                      className="rounded border-[#E8D7C3] text-[#8B9A5B] focus:ring-[#8B9A5B]"
-                    />
-                    <span className="text-sm text-[#2C2C2C]">
-                      Went to failure
-                    </span>
-                  </label>
-                </div>
-              )}
-            </div>
-
-            <div className="space-y-4">
-              <div>
+              {/* RPE Input Section */}
+              <div className="col-span-2 md:col-span-1">
                 <label className="block text-sm font-medium text-[#2C2C2C] mb-2">
                   RPE (1-10, optional)
                 </label>
@@ -327,6 +303,31 @@ const WorkoutTracking: React.FC<WorkoutTrackingProps> = ({
                 </select>
               </div>
 
+              {/* Failure Toggle for Failure-Based Exercises */}
+              {isFailureBased && (
+                <div className="col-span-2 md:col-span-3 flex justify-center">
+                  <label className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={currentSet.isFailure || false}
+                      onChange={(e) => {
+                        const updatedSession = { ...currentSession };
+                        updatedSession.exercises[currentExerciseIndex].sets[
+                          currentSetForExercise
+                        ].isFailure = e.target.checked;
+                        onUpdateSession(updatedSession);
+                      }}
+                      className="rounded border-[#E8D7C3] text-[#8B9A5B] focus:ring-[#8B9A5B]"
+                    />
+                    <span className="text-sm text-[#2C2C2C]">
+                      Went to failure
+                    </span>
+                  </label>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-4">
               <div className="bg-white rounded-lg p-4">
                 <h4 className="font-medium text-[#2C2C2C] mb-2">
                   Set Progress
