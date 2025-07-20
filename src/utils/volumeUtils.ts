@@ -18,7 +18,6 @@ export const calculateSetVolume = (
   
   if (trackingType === 'time') {
     return calculateTimeVolume(
-      exerciseName,
       set.timeSeconds || 0,
       set.weight,
       set.weightLeft,

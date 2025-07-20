@@ -239,7 +239,7 @@ export const normalizeExercise = (
   
   // Normalize sets
   const sets = (exerciseData.sets_data || []).map(setData => 
-    normalizeSet(setData, exerciseName, equipment)
+    normalizeSet(setData)
   );
   
   return {

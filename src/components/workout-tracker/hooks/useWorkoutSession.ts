@@ -281,10 +281,10 @@ export const useWorkoutSession = (routeSelectedDay?: WorkoutDay | null, routeCur
       weightLeft: setData.weightLeft || null,
       weightRight: setData.weightRight || null,
       reps: setData.reps || 0,
-      timeSeconds: setData.timeSeconds || null,
+      timeSeconds: setData.timeSeconds ?? null,
       isFailure: setData.isFailure || false,
       completed: true,
-      rpe: setData.rpe || null,
+      rpe: setData.rpe ?? null,
     };
 
     setCurrentSession(updatedSession);
@@ -299,10 +299,10 @@ export const useWorkoutSession = (routeSelectedDay?: WorkoutDay | null, routeCur
           weightLeft: setData.weightLeft || null,
           weightRight: setData.weightRight || null,
           reps: setData.reps || null,
-          timeSeconds: setData.timeSeconds || null,
+          timeSeconds: setData.timeSeconds ?? null,
           isFailure: setData.isFailure || false,
           completed: true,
-          rpe: setData.rpe || null,
+          rpe: setData.rpe ?? null,
         });
       } catch (error) {
         console.error('Failed to save set to database:', error);
