@@ -34,6 +34,7 @@
     "psql": "^0.0.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "tsx": "^4.20.3",
     "zod": "^3.25.74"
   },
   "devDependencies": {
@@ -49,7 +50,6 @@
     "kysely-codegen": "^0.18.5",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.11",
-    "tsx": "^4.20.3",
     "typescript": "^5.7.2",
     "vite": "^6.1.0",
     "vitest": "^3.0.5",
